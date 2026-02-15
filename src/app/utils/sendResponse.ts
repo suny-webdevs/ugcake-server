@@ -8,7 +8,7 @@ const sendResponse = <T>(
 ) => {
   return res.status(statusCode).json({
     success: true,
-    message: `${message} successful`,
+    message: `${message}`,
     data: data,
   })
 }

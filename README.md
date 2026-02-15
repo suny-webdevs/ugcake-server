@@ -138,3 +138,29 @@ Errors are handled by the global error handler and return appropriate HTTP statu
 ## Authentication
 
 Cart create/update/delete operations expect an authenticated user (`req.user`). Ensure a valid auth middleware or JWT is in place when calling those endpoints.
+
+---
+
+## Deploy with Vercel
+
+The project is set up for [Vercel](https://vercel.com) (zero-config Express). The app entry is `src/app.ts`, which exports the Express app.
+
+### Prerequisites
+
+- [Vercel CLI](https://vercel.com/docs/cli) (e.g. `npm i -g vercel` or use `npx vercel`)
+- Environment variables (e.g. `DATABASE_URL`) configured in the [Vercel project settings](https://vercel.com/docs/projects/environment-variables)
+
+### Deploy to production
+
+1. Log in (if needed): `vercel login`
+2. From the project root, deploy:
+   ```bash
+   vercel --prod
+   ```
+   Or with npx: `npx vercel --prod`
+3. When prompted, link the project to your Vercel account/team and confirm. Your API will be available at the URL Vercel prints (e.g. `https://ug-cake-server-xxx.vercel.app`).
+
+### Build on Vercel
+
+- **Build command:** `prisma generate && npm run build` (set in `vercel.json`)
+- **Output:** Express runs as a serverless function; no custom output directory is required.
