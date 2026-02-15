@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id          String   @id @unique @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  email       String   @unique @db.VarChar(255)
+  password    String   @db.VarChar(255)
+  role        Role     @default(USER)
+  address     String   @db.Text
+  phone       String   @db.VarChar(255)
+  image       String   @db.Text
+  isActive    Boolean  @default(true)
+  isVerified  Boolean  @default(false)
+  isDeleted   Boolean  @default(false)
+  isBlocked   Boolean  @default(false)
+  isSuspended Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  orders      Order[]
+  carts       Cart[]
+}
+
+enum Role {
+  ADMIN
+  USER
+  MODERATOR
+}
+
+model Cake {
+  id             String   @id @unique @default(uuid()) @db.Uuid
+  title          String   @db.VarChar(255)
+  description    String   @db.Text
+  price          Decimal  @db.Decimal(10, 2)
+  image          String   @db.Text
+  type           String   @db.VarChar(255)
+  flavors        String[]
+  weights        String[]
+  category       String   @db.VarChar(255)
+  stock          Int      @default(0)
+  isActive       Boolean  @default(true)
+  isCustomizable Boolean  @default(false)
+  isNew          Boolean  @default(false)
+  isBestSeller   Boolean  @default(false)
+  isSale         Boolean  @default(false)
+  isTrending     Boolean  @default(false)
+  isSpecial      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  orders         Order[]
+  carts          Cart[]
+
+  @@map("cakes")
+}
+
+model Cart {
+  id        String   @id @unique @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id])
+  cakeId    String   @db.Uuid
+  cake      Cake     @relation(fields: [cakeId], references: [id])
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, cakeId])
+  @@map("carts")
+}
+
+model Order {
+  id            String        @id @unique @default(uuid()) @db.Uuid
+  userId        String        @db.Uuid
+  user          User          @relation(fields: [userId], references: [id])
+  cakeId        String        @db.Uuid
+  cake          Cake          @relation(fields: [cakeId], references: [id])
+  quantity      Int           @default(1)
+  totalPrice    Decimal       @db.Decimal(10, 2)
+  status        OrderStatus   @default(PENDING)
+  paymentMethod PaymentMethod @default(COD)
+  message       String?       @db.Text
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId, cakeId])
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  COD
+  ONLINE
+}
