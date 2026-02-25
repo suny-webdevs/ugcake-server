@@ -19,7 +19,10 @@ app.use(
 app.use("/api/v1", router)
 
 app.get("/", (req: Request, res: Response) => {
-  res.status(200).json({ success: true, message: "Welcome to api of ug-cake!" })
+  res.status(200).json({
+    success: true,
+    message: "Welcome to RESTful API Server of UG Cake!",
+  })
 })
 
 app.use(globalErrorHandler)

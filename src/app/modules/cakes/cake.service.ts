@@ -1,17 +1,18 @@
-import prisma from "../../lib/prisma"
 import AppError from "../../errors/AppError"
 import httpStatus from "http-status"
 import { Request } from "express"
+import prisma from "../../lib/prisma"
 
 const create_cake = async (req: Request) => {
   const body = req.body
 
   const cake = await prisma.cake.create({
     data: {
+      sku: body.sku,
       title: body.title,
       description: body.description,
       price: body.price,
-      image: body.image,
+      avatar: body.avatar,
       type: body.type,
       flavors: body.flavors ?? [],
       weights: body.weights ?? [],

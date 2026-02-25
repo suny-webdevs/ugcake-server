@@ -1,17 +1,11 @@
 import app from "./app"
 import config from "./app/config"
-// import { seedAdmin } from "./app/DB"
-import prisma from "./app/lib/prisma"
 import { Server } from "http"
 
 let server: Server
 
 async function main() {
   try {
-    await prisma.$connect()
-
-    // seedAdmin()
-
     server = app.listen(config.port, () => {
       console.log(`Server is live on port ${config.port}`)
     })
