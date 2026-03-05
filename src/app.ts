@@ -4,7 +4,6 @@ import cors from "cors"
 import globalErrorHandler from "./app/middlewares/globalErrorHandler"
 import notFound from "./app/middlewares/notFound"
 import router from "./app/routes"
-import { inject } from "@vercel/analytics"
 
 const app: Application = express()
 
@@ -28,6 +27,5 @@ app.get("/", (req: Request, res: Response) => {
 
 app.use(globalErrorHandler)
 app.use(notFound)
-inject()
 
 export default app
