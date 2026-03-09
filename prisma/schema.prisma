@@ -34,50 +34,40 @@ enum Role {
   ADMIN
   USER
   MODERATOR
+  DELIVERY_MAN
 }
 
 model Cake {
-  id               String   @id @unique @default(uuid()) @db.Uuid
-  sku              String   @unique @db.VarChar(255)
-  title            String   @db.VarChar(255)
-  description      String   @db.Text
-  price            Decimal  @db.Decimal(10, 2)
-  avatar           String   @db.Text
-  type             String   @db.VarChar(255)
-  flavors          String[]
-  weights          String[]
-  features         String[]
-  additionalImages String[]
-  category         String   @db.VarChar(255)
-  stock            Int      @default(0)
-  isActive         Boolean  @default(true)
-  isCustomizable   Boolean  @default(false)
-  isNew            Boolean  @default(false)
-  isBestSeller     Boolean  @default(false)
-  isSale           Boolean  @default(false)
-  isTrending       Boolean  @default(false)
-  isSpecial        Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id                 String   @id @unique @default(uuid()) @db.Uuid
+  sku                String   @unique @db.VarChar(255)
+  title              String   @db.VarChar(255)
+  description        String   @db.Text
+  price              Decimal  @db.Decimal(10, 2)
+  avatar             String   @db.Text
+  type               String   @db.VarChar(255)
+  flavors            String[]
+  weights            String[]
+  features           String[]
+  additionalImages   String[]
+  category           String   @db.VarChar(255)
+  stock              Int      @default(0)
+  specificationLabel String[]
+  specificationValue String[]
+  isActive           Boolean  @default(true)
+  isCustomizable     Boolean  @default(false)
+  isNew              Boolean  @default(false)
+  isBestSeller       Boolean  @default(false)
+  isSale             Boolean  @default(false)
+  isTrending         Boolean  @default(false)
+  isSpecial          Boolean  @default(false)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-  orders        Order[]
-  carts         Cart[]
-  ratings       Rating?
-  specification Specification[]
+  orders  Order[]
+  carts   Cart[]
+  ratings Rating?
 
   @@map("cakes")
-}
-
-model Specification {
-  id        String   @id @unique @default(uuid()) @db.Uuid
-  cakeId    String   @unique @db.Uuid
-  cake      Cake     @relation(fields: [cakeId], references: [id])
-  label     String   @db.VarChar(255)
-  value     String   @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("specifications")
 }
 
 model Rating {
