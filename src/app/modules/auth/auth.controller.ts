@@ -7,18 +7,16 @@ import { Response } from "express"
 
 export const register = catchAsync(async (req, res) => {
   const data = await AuthServices.registerUser(req.body)
-  const { token, refreshToken } = data
+  // const { token, refreshToken } = data
 
-  res.cookie("refreshToken", refreshToken, {
-    secure: config.node_env === "production",
-    httpOnly: true,
-    sameSite: "lax",
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
-  })
+  // res.cookie("refreshToken", refreshToken, {
+  //   secure: config.node_env === "production",
+  //   httpOnly: true,
+  //   sameSite: "lax",
+  //   maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+  // })
 
-  sendResponse(res, httpStatus.CREATED, "User registered successfully", {
-    token,
-  })
+  sendResponse(res, httpStatus.CREATED, "User registered successfully", data)
 })
 
 export const login = catchAsync(async (req, res) => {

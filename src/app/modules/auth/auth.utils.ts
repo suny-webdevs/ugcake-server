@@ -13,3 +13,8 @@ export const createToken = (
 export const verifyToken = (token: string, secret: string): JwtPayload => {
   return jwt.verify(token, secret) as JwtPayload
 }
+
+export const generateUsername = (email: string): string | undefined => {
+  const [username] = email.split("@")
+  return username
+}

@@ -2,7 +2,7 @@ import AppError from "../../errors/AppError"
 import prisma from "../../lib/prisma"
 import { TAuth, TChangePassword } from "./auth.type"
 import httpStatus from "http-status"
-import { createToken, verifyToken } from "./auth.utils"
+import { createToken, generateUsername, verifyToken } from "./auth.utils"
 import config from "../../config"
 import { JwtPayload } from "jsonwebtoken"
 import * as bcrypt from "bcryptjs"
@@ -180,35 +180,32 @@ const registerUser = async (payload: TAuth) => {
     data: {
       email: payload.email,
       password: hashedPassword,
-      name: payload.name || "User",
+      name: payload.name || (generateUsername(payload.email) as string),
       address: "",
       phone: "",
       image: "",
     },
   })
 
-  const jwtPayload = {
-    id: user.id,
-    email: user.email,
-    role: user.role,
-  }
+  // const jwtPayload = {
+  //   id: user.id,
+  //   email: user.email,
+  //   role: user.role,
+  // }
 
-  const accessToken = createToken(
-    jwtPayload,
-    config.jwt_access_secret as string,
-    config.jwt_access_expires_in as string,
-  )
+  // const accessToken = createToken(
+  //   jwtPayload,
+  //   config.jwt_access_secret as string,
+  //   config.jwt_access_expires_in as string,
+  // )
 
-  const refreshToken = createToken(
-    jwtPayload,
-    config.jwt_refresh_secret as string,
-    config.jwt_refresh_expires_in as string,
-  )
+  // const refreshToken = createToken(
+  //   jwtPayload,
+  //   config.jwt_refresh_secret as string,
+  //   config.jwt_refresh_expires_in as string,
+  // )
 
-  return {
-    token: accessToken,
-    refreshToken,
-  }
+  return user
 }
 
 export const AuthServices = {

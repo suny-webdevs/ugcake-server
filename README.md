@@ -1,353 +1,217 @@
 # UG Cake Server
 
-API server for the UG Cake application. Built with **Express**, **TypeScript**, and **Prisma** (PostgreSQL).
+A RESTful API server for the UG Cake e-commerce application. Built with **Express**, **TypeScript**, and **Prisma** (PostgreSQL).
 
-## Getting started
-
-### Prerequisites
-
-- Node.js (v18+)
-- PostgreSQL database
-
-### Install and run
+## Quick Start
 
 ```bash
+# 1. Install dependencies
 npm install
-# Create .env and set DATABASE_URL (PostgreSQL connection string)
+
+# 2. Setup environment
+echo 'PORT=5555
+NODE_ENV=development
+DATABASE_URL="postgresql://user:password@host/database"
+JWT_ACCESS_SECRET="905e1bb017a5bf6b8c5fe4b0bd62e4a2fac56cc606702665218540d084ce0b0e"
+JWT_REFRESH_SECRET="e37fe6d86e9ccde7ec257e3261b127b03d282495557b1290395a649c6b136ef2"' > .env
+
+# 3. Setup database
 npx prisma generate
-npx prisma migrate dev   # or push for existing DB
+npx prisma migrate dev
+
+# 4. Start server
 npm run dev
 ```
 
-The server runs at `http://localhost:3000` (or the port in your config).
+API runs at `http://localhost:5555/api/v1`
 
-### Scripts
+## Prerequisites
 
-| Script           | Description                        |
-| ---------------- | ---------------------------------- |
-| `npm run dev`    | Start dev server (ts-node-dev)     |
-| `npm run build`  | Prisma generate + TypeScript build |
-| `npm run deploy` | Deploy to Vercel (prod)            |
+- **Node.js** v18+
+- **PostgreSQL** database
+- **npm** or **yarn**
 
----
+## Installation & Configuration
+
+```bash
+git clone <repo-url>
+cd ug-cake-server
+npm install
+```
+
+Create `.env` file with your database and JWT configuration.
+
+## Running the Server
+
+| Command          | Description           |
+| ---------------- | --------------------- |
+| `npm run dev`    | Start with hot reload |
+| `npm run build`  | Build TypeScript      |
+| `npm run deploy` | Deploy to Vercel      |
 
 ## Base URL
 
-All API routes are prefixed with:
-
 ```
-/api/v1
+http://localhost:5555/api/v1
 ```
 
----
+## API Endpoints
 
-## API Routes overview
+### Health Check
 
-| Resource | Base path | Create               | List    | Get one    | Update                    | Delete                     |
-| -------- | --------- | -------------------- | ------- | ---------- | ------------------------- | -------------------------- |
-| Carts    | `/carts`  | `POST /create-cart`  | `GET /` | `GET /:id` | `PATCH /update-cart/:id`  | `DELETE /delete-cart/:id`  |
-| Cakes    | `/cakes`  | `POST /create-cake`  | `GET /` | `GET /:id` | `PATCH /update-cake/:id`  | `DELETE /delete-cake/:id`  |
-| Orders   | `/orders` | `POST /create-order` | `GET /` | `GET /:id` | `PATCH /update-order/:id` | `DELETE /delete-order/:id` |
-| Users    | `/users`  | `POST /create-user`  | `GET /` | `GET /:id` | `PATCH /update-user/:id`  | `DELETE /delete-user/:id`  |
+- `GET /` - Server status
 
----
+### Authentication
 
-## API Routes
-
-### Carts
-
-| Method   | Endpoint                        | Description                  |
-| -------- | ------------------------------- | ---------------------------- |
-| `POST`   | `/api/v1/carts/create-cart`     | Create a new cart item       |
-| `GET`    | `/api/v1/carts`                 | Get all cart items           |
-| `GET`    | `/api/v1/carts/:id`             | Get a single cart item by ID |
-| `PATCH`  | `/api/v1/carts/update-cart/:id` | Update a cart item           |
-| `DELETE` | `/api/v1/carts/delete-cart/:id` | Delete a cart item           |
-
-#### `POST /api/v1/carts/create-cart`
-
-Create a new cart entry for the authenticated user.
-
-**Request body:**
-
-```json
-{
-  "cakeId": "uuid",
-  "quantity": 1
-}
-```
-
-- `cakeId` (required): UUID of the cake to add
-- `quantity` (required): Number of items (must be between 1 and cake stock)
-
-**Response:** `201 Created` — Cart created successfully.
-
----
-
-#### `GET /api/v1/carts`
-
-Returns all cart items.
-
-**Response:** `200 OK` — List of cart items.
-
----
-
-#### `GET /api/v1/carts/:id`
-
-Returns a single cart item by ID.
-
-**URL parameters:**
-
-- `id` — Cart item UUID
-
-**Response:** `200 OK` — Cart item details.
-
----
-
-#### `PATCH /api/v1/carts/update-cart/:id`
-
-Update an existing cart item.
-
-**URL parameters:**
-
-- `id` — Cart item UUID
-
-**Request body:**
-
-```json
-{
-  "payload": {
-    "quantity": 2
-  }
-}
-```
-
-- `payload`: Object with fields to update (e.g. `quantity`).
-
-**Response:** `200 OK` — Updated cart item.
-
----
-
-#### `DELETE /api/v1/carts/delete-cart/:id`
-
-Remove a cart item.
-
-**URL parameters:**
-
-- `id` — Cart item UUID
-
-**Response:** `200 OK` — Cart deleted successfully.
-
----
+- `POST /api/v1/auth/register` - Register user
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/change-password` - Change password
+- `POST /api/v1/auth/refresh-token` - Refresh token
 
 ### Cakes
 
-| Method   | Endpoint                        | Description             |
-| -------- | ------------------------------- | ----------------------- |
-| `POST`   | `/api/v1/cakes/create-cake`     | Create a new cake       |
-| `GET`    | `/api/v1/cakes`                 | Get all cakes           |
-| `GET`    | `/api/v1/cakes/:id`             | Get a single cake by ID |
-| `PATCH`  | `/api/v1/cakes/update-cake/:id` | Update a cake           |
-| `DELETE` | `/api/v1/cakes/delete-cake/:id` | Delete a cake           |
-
-#### `POST /api/v1/cakes/create-cake`
-
-**Request body:**
-
-```json
-{
-  "title": "Chocolate Cake",
-  "description": "Rich chocolate cake",
-  "price": 29.99,
-  "image": "https://...",
-  "type": "birthday",
-  "flavors": ["chocolate", "vanilla"],
-  "weights": ["1kg", "2kg"],
-  "category": "birthday",
-  "stock": 10,
-  "isActive": true,
-  "isCustomizable": false,
-  "isNew": true,
-  "isBestSeller": false,
-  "isSale": false,
-  "isTrending": false,
-  "isSpecial": false
-}
-```
-
-Required: `title`, `description`, `price`, `image`, `type`, `category`. Others have defaults.
-
-**Response:** `201 Created` — Cake created successfully.
-
----
-
-#### `GET /api/v1/cakes` — List all cakes. **Response:** `200 OK`
-
-#### `GET /api/v1/cakes/:id` — Get one cake by ID. **Response:** `200 OK` or `404 Not Found`
-
-#### `PATCH /api/v1/cakes/update-cake/:id`
-
-**Request body:** `{ "payload": { "stock": 5, "title": "..." } }` — fields to update.
-
-**Response:** `200 OK` — Updated cake.
-
-#### `DELETE /api/v1/cakes/delete-cake/:id` — **Response:** `200 OK`
-
----
+- `GET /api/v1/cakes` - Get all cakes
+- `POST /api/v1/cakes/create-cake` - Create cake
+- `GET /api/v1/cakes/:id` - Get cake
+- `PATCH /api/v1/cakes/update-cake/:id` - Update cake
+- `DELETE /api/v1/cakes/delete-cake/:id` - Delete cake
 
 ### Orders
 
-| Method   | Endpoint                          | Description              |
-| -------- | --------------------------------- | ------------------------ |
-| `POST`   | `/api/v1/orders/create-order`     | Create a new order       |
-| `GET`    | `/api/v1/orders`                  | Get all orders           |
-| `GET`    | `/api/v1/orders/:id`              | Get a single order by ID |
-| `PATCH`  | `/api/v1/orders/update-order/:id` | Update an order          |
-| `DELETE` | `/api/v1/orders/delete-order/:id` | Delete an order          |
+- `GET /api/v1/orders` - Get all orders
+- `POST /api/v1/orders/create-order` - Create order
+- `GET /api/v1/orders/:id` - Get order
+- `PATCH /api/v1/orders/update-order/:id` - Update order
+- `DELETE /api/v1/orders/delete-order/:id` - Delete order
 
-#### `POST /api/v1/orders/create-order`
+### Carts
 
-**Request body:**
-
-```json
-{
-  "userId": "uuid",
-  "cakeId": "uuid",
-  "quantity": 2,
-  "totalPrice": 59.98,
-  "status": "PENDING",
-  "paymentMethod": "COD",
-  "message": "Optional note"
-}
-```
-
-Required: `userId`, `cakeId`, `totalPrice`. Defaults: `quantity` 1, `status` `"PENDING"`, `paymentMethod` `"COD"`.  
-`status`: `PENDING` \| `PROCESSING` \| `SHIPPED` \| `DELIVERED` \| `CANCELLED`.  
-`paymentMethod`: `COD` \| `ONLINE`.
-
-**Response:** `201 Created` — Order created successfully.
-
----
-
-#### `GET /api/v1/orders` — List all orders. **Response:** `200 OK`
-
-#### `GET /api/v1/orders/:id` — Get one order. **Response:** `200 OK` or `404 Not Found`
-
-#### `PATCH /api/v1/orders/update-order/:id` — Body: `{ "payload": { "status": "SHIPPED" } }`. **Response:** `200 OK`
-
-#### `DELETE /api/v1/orders/delete-order/:id` — **Response:** `200 OK`
-
----
+- `GET /api/v1/carts` - Get all carts
+- `POST /api/v1/carts/create-cart` - Create cart
+- `GET /api/v1/carts/:id` - Get cart
+- `PATCH /api/v1/carts/update-cart/:id` - Update cart
+- `DELETE /api/v1/carts/delete-cart/:id` - Delete cart
 
 ### Users
 
-| Method   | Endpoint                        | Description             |
-| -------- | ------------------------------- | ----------------------- |
-| `POST`   | `/api/v1/users/create-user`     | Create a new user       |
-| `GET`    | `/api/v1/users`                 | Get all users           |
-| `GET`    | `/api/v1/users/:id`             | Get a single user by ID |
-| `PATCH`  | `/api/v1/users/update-user/:id` | Update a user           |
-| `DELETE` | `/api/v1/users/delete-user/:id` | Delete a user           |
+- `GET /api/v1/users` - Get all users
+- `GET /api/v1/users/:id` - Get user
+- `PATCH /api/v1/users/update-user/:id` - Update user
+- `DELETE /api/v1/users/delete-user/:id` - Delete user
 
-#### `POST /api/v1/users/create-user`
+### Ratings
 
-**Request body:**
+- `GET /api/v1/ratings` - Get all ratings
+- `POST /api/v1/ratings/create-rating` - Create rating
+- `GET /api/v1/ratings/:id` - Get rating
+- `PATCH /api/v1/ratings/update-rating/:id` - Update rating
+- `DELETE /api/v1/ratings/delete-rating/:id` - Delete rating
+
+## Usage Examples
+
+### Register
+
+```bash
+curl -X POST http://localhost:5555/api/v1/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"Pass123!","name":"User"}'
+```
+
+### Login
+
+```bash
+curl -X POST http://localhost:5555/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"user@example.com","password":"Pass123!"}'
+```
+
+### Get Cakes
+
+```bash
+curl http://localhost:5555/api/v1/cakes
+```
+
+### Use Token
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  http://localhost:5555/api/v1/users
+```
+
+## Error Format
+
+All errors follow this structure:
 
 ```json
 {
-  "name": "John Doe",
-  "email": "john@example.com",
-  "password": "secret",
-  "address": "123 Main St",
-  "phone": "+1234567890",
-  "role": "USER",
-  "image": "",
-  "isActive": true,
-  "isVerified": false,
-  "isDeleted": false,
-  "isBlocked": false,
-  "isSuspended": false
+  "success": false,
+  "message": "Error description",
+  "errorSources": [{ "path": "field", "message": "Details" }]
 }
 ```
 
-Required: `name`, `email`, `password`, `address`, `phone`. Defaults: `role` `"USER"`, `image` `""`, booleans as above.  
-`role`: `ADMIN` \| `USER` \| `MODERATOR`.
+## Testing
 
-**Response:** `201 Created` — User created successfully.
+Run tests with:
 
----
-
-#### `GET /api/v1/users` — List all users. **Response:** `200 OK`
-
-#### `GET /api/v1/users/:id` — Get one user. **Response:** `200 OK` or `404 Not Found`
-
-#### `PATCH /api/v1/users/update-user/:id` — Body: `{ "payload": { "name": "..." } }`. **Response:** `200 OK`
-
-#### `DELETE /api/v1/users/delete-user/:id` — **Response:** `200 OK`
-
----
-
-## Root
-
-| Method | Endpoint | Description     |
-| ------ | -------- | --------------- |
-| `GET`  | `/`      | Welcome message |
-
-#### `GET /`
-
-Returns a simple welcome response.
-
-**Response:** `200 OK`
-
-```json
-{
-  "success": true,
-  "message": "Welcome to api of ug-cake!"
-}
+```bash
+npm run build
+npx ts-node comprehensive-test.ts
 ```
 
----
+**Status:** ✅ 11/11 tests passing (100%)
 
-## Response format
+See `TEST.md` for detailed results.
 
-Success responses use a consistent shape:
+## Database Models
 
-```json
-{
-  "success": true,
-  "message": "Success message",
-  "data": { ... }
-}
-```
-
-Errors are handled by the global error handler and return appropriate HTTP status codes and error messages.
+- **User** - Accounts & profiles
+- **Cake** - Product catalog
+- **Order** - Customer orders
+- **Cart** - Shopping cart items
+- **Rating** - Reviews & ratings
 
 ## Authentication
 
-Cart create/update/delete operations expect an authenticated user (`req.user`). Ensure a valid auth middleware or JWT is in place when calling those endpoints.
+- JWT access tokens (7 days)
+- Refresh tokens (30 days)
+- Password hashing with bcryptjs
+- HttpOnly secure cookies
 
----
+## Project Structure
 
-## Deploy with Vercel
+```
+src/
+├── modules/       # Feature modules
+├── middlewares/   # Express middlewares
+├── routes/        # Route aggregation
+├── utils/         # Utilities
+├── errors/        # Error handling
+└── lib/           # Libraries
+prisma/           # Database schema & migrations
+TEST.md           # Test results & examples
+README.md         # This file
+```
 
-The project is set up for [Vercel](https://vercel.com) (zero-config Express). The app entry is `src/app.ts`, which exports the Express app.
+## Deployment
 
-### Prerequisites
+Deploy to Vercel:
 
-- [Vercel CLI](https://vercel.com/docs/cli) (e.g. `npm i -g vercel` or use `npx vercel`)
-- Environment variables (e.g. `DATABASE_URL`) configured in the [Vercel project settings](https://vercel.com/docs/projects/environment-variables)
+```bash
+npm run deploy
+```
 
-### Deploy to production
+Set environment variables in Vercel dashboard.
 
-1. Log in (if needed): `vercel login`
-2. From the project root, deploy:
-   ```bash
-   vercel --prod
-   ```
-   Or with npx: `npx vercel --prod`
-3. When prompted, link the project to your Vercel account/team and confirm. Your API will be available at the URL Vercel prints (e.g. `https://ug-cake-server-xxx.vercel.app`).
+## Security
 
-### Build on Vercel
+- ✅ Password hashing
+- ✅ JWT authentication
+- ✅ CORS configured
+- ✅ Input validation
+- ✅ Error handling
+- ✅ Role-based access
 
-- **Build command:** `prisma generate && npm run build` (set in `vercel.json`)
-- **Output:** Express runs as a serverless function; no custom output directory is required.
+## License
+
+ISC
