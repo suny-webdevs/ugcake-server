@@ -1,14 +1,18 @@
 import express from "express"
+import { AuthRoutes } from "../modules/auth/auth.route"
 import { cartRoutes } from "../modules/cart/cart.route"
 import { cakeRoutes } from "../modules/cakes/cake.route"
 import { orderRoutes } from "../modules/orders/order.route"
 import { userRoutes } from "../modules/users/user.route"
-import { specificationRoutes } from "../modules/specifications/specification.route"
 import { ratingRoutes } from "../modules/ratings/rating.route"
 
 const router = express.Router()
 
 const routerData = [
+  {
+    path: "/auth",
+    route: AuthRoutes,
+  },
   {
     path: "/carts",
     route: cartRoutes,
@@ -24,10 +28,6 @@ const routerData = [
   {
     path: "/users",
     route: userRoutes,
-  },
-  {
-    path: "/specifications",
-    route: specificationRoutes,
   },
   {
     path: "/ratings",
