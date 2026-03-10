@@ -43,14 +43,6 @@ const auth = (...requiredRoles: TUserRole[]) => {
         throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!")
       }
 
-      // Checking if user is blocked or suspended
-      if (user.isBlocked || user.isSuspended) {
-        throw new AppError(
-          httpStatus.FORBIDDEN,
-          "Your account has been blocked or suspended!",
-        )
-      }
-
       // Check required role exists or not
       if (requiredRoles && requiredRoles.length > 0) {
         if (!requiredRoles.includes(role as TUserRole)) {

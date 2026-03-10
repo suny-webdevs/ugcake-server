@@ -10,9 +10,12 @@ const create_rating = async (req: Request) => {
     data: {
       userId: body.userId,
       cakeId: body.cakeId,
-      rating: body.rating ?? 0,
-      maxRating: body.maxRating ?? 5,
-      review: body.review,
+      rating: body.rating,
+      review: body.review ?? null,
+    },
+    include: {
+      user: true,
+      cake: true,
     },
   })
 
@@ -20,13 +23,24 @@ const create_rating = async (req: Request) => {
 }
 
 const get_all_rating = async () => {
-  const ratings = await prisma.rating.findMany()
+  const ratings = await prisma.rating.findMany({
+    include: {
+      user: true,
+      cake: true,
+    },
+  })
   return ratings
 }
 
 const get_rating = async (req: Request) => {
   const id = req.params.id ?? req.body?.id
-  const rating = await prisma.rating.findUnique({ where: { id } })
+  const rating = await prisma.rating.findUnique({
+    where: { id },
+    include: {
+      user: true,
+      cake: true,
+    },
+  })
   if (!rating) {
     throw new AppError(httpStatus.NOT_FOUND, "Rating not found")
   }
@@ -39,6 +53,10 @@ const update_rating = async (req: Request) => {
   const rating = await prisma.rating.update({
     where: { id },
     data: payload,
+    include: {
+      user: true,
+      cake: true,
+    },
   })
   return rating
 }

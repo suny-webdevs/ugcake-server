@@ -1,54 +1,298 @@
-# API Test Results & Documentation
+# API Testing Guide
 
-**Generated:** Mar 10, 2026  
-**Status:** ⚠️ SOME TESTS FAILED
-
----
-
-## Test Summary
-
-| Metric           | Result |
-| ---------------- | ------ |
-| **Total Tests**  | 21     |
-| **Passed**       | 19 ✅  |
-| **Failed**       | 2      |
-| **Success Rate** | 90.48%   |
+**Last Updated:** Mar 11, 2026  
+**API Base URL:** `http://localhost:5555/api/v1`
 
 ---
 
-## System Tests (2/2 Passed) ✅
+## Quick Start
 
-### ✅ Server Health Check
+```bash
+# 1. Start the development server
+npm run dev
 
-- **Endpoint:** `GET http://localhost:5555/`
-- **Status Code:** 200 OK
-- **Response:**
-
-```json
-{"success":true,"message":"Welcome to RESTful API Server of UG Cake!"}
+# 2. Run test suite (in another terminal)
+npx ts-node test.ts
 ```
 
-### ✅ Invalid Endpoint (Negative Test)
+---
 
-- **Endpoint:** `GET http://localhost:5555/api/v1/nonexistent`
-- **Status Code:** 404 Not Found
-- **Response:**
+## Testing Strategy
 
-```json
-{"success":false,"message":"API not found"}
+### 1. **System Tests**
+
+- Server health check
+- Error handling for invalid endpoints
+
+### 2. **Authentication Tests**
+
+- User registration with role assignment
+- User login with JWT token generation
+- Password change flow
+- Token refresh mechanism
+
+### 3. **CRUD Operations**
+
+Test all modules with Create, Read, Update, Delete operations:
+
+- Users & Profiles
+- Categories
+- Cakes & Cake Features
+- Orders
+- Ratings
+
+---
+
+## Sample API Requests
+
+### Authentication
+
+**Register User**
+
+```bash
+POST /api/v1/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "role": "USER"
+}
 ```
 
-## Authentication Tests (3/3 Passed) ✅
+**Login User**
 
-### ✅ User Registration
+```bash
+POST /api/v1/auth/login
+Content-Type: application/json
 
-- **Endpoint:** `POST http://localhost:5555/api/v1/auth/register`
-- **Status Code:** 201 Created
-- **Response:**
+{
+  "email": "user@example.com",
+  "password": "securePassword123"
+}
+```
+
+### Users & Profiles
+
+**Create Profile**
+
+```bash
+POST /api/v1/profiles/create-profile
+Content-Type: application/json
+
+{
+  "userId": "user-uuid",
+  "name": "John Doe",
+  "phone": "+1234567890",
+  "address": "123 Main St, City",
+  "image": "https://example.com/image.jpg"
+}
+```
+
+### Categories
+
+**Create Category**
+
+```bash
+POST /api/v1/categories/create-category
+Content-Type: application/json
+
+{
+  "name": "Wedding Cakes",
+  "image": "https://example.com/wedding.jpg"
+}
+```
+
+### Cakes
+
+**Create Cake**
+
+```bash
+POST /api/v1/cakes/create-cake
+Content-Type: application/json
+
+{
+  "sku": "CAKE-001",
+  "title": "Chocolate Cake",
+  "description": "Rich chocolate cake",
+  "images": ["https://example.com/cake1.jpg"],
+  "price": 2500,
+  "category": "Wedding Cakes",
+  "type": "CAKE",
+  "customizable": true,
+  "stock": 10,
+  "size": "Medium",
+  "flavour": "Chocolate"
+}
+```
+
+**Create Cake Features**
+
+```bash
+POST /api/v1/cake-features/create-cake-features
+Content-Type: application/json
+
+{
+  "cakeId": "cake-uuid",
+  "specificationsLabel": ["Size", "Flavor"],
+  "specificationValue": ["Medium", "Chocolate"],
+  "features": ["Customizable", "Delivery Available"],
+  "nutritionLabel": ["Calories", "Sugar"],
+  "nutritionValue": ["250 kcal", "20g"]
+}
+```
+
+### Orders
+
+**Create Order**
+
+```bash
+POST /api/v1/orders/create-order
+Content-Type: application/json
+
+{
+  "userId": "user-uuid",
+  "cakeId": "cake-uuid",
+  "quantity": 1,
+  "totalPrice": 2500,
+  "status": "PENDING",
+  "paymentMethod": "CASH_ON_DELIVERY",
+  "message": "Please deliver before 5 PM"
+}
+```
+
+### Ratings
+
+**Create Rating**
+
+```bash
+POST /api/v1/ratings/create-rating
+Content-Type: application/json
+
+{
+  "userId": "user-uuid",
+  "cakeId": "cake-uuid",
+  "rating": 5,
+  "review": "Excellent cake! Highly recommended."
+}
+```
+
+---
+
+## Expected Response Format
+
+All API responses follow this structure:
+
+**Success Response**
 
 ```json
-{"success":true,"message":"User registered successfully","data":{"id":"3d5c9265-778c-46b5-862e-34a3469bc751","name":"Test User","email":"testuser1773094870758@example.com","password":"$2a$10$eEGwKJk3ocLrVpVPYUAcFeEma8R4pHlaTDQbq2tyUwrVS5umzRj/i","role":"USER","address":"","phone":"","image":"","isActive":true,"isVerified":false,"isDeleted":false,"isBlocked":false,"isSuspended":false,"createdAt":"2026-03-09T22:21:10.902Z","updatedAt":"2026-03-09T22:21:10.902Z"}}
+{
+  "success": true,
+  "message": "Operation successful",
+  "data": {
+    /* response data */
+  }
+}
 ```
+
+**Error Response**
+
+```json
+{
+  "success": false,
+  "message": "Error description"
+}
+```
+
+---
+
+## HTTP Status Codes
+
+| Code | Meaning               | Use Case                   |
+| ---- | --------------------- | -------------------------- |
+| 200  | OK                    | GET/PATCH successful       |
+| 201  | Created               | POST successful            |
+| 400  | Bad Request           | Invalid request data       |
+| 401  | Unauthorized          | Missing/invalid auth token |
+| 403  | Forbidden             | Insufficient permissions   |
+| 404  | Not Found             | Resource doesn't exist     |
+| 500  | Internal Server Error | Server error               |
+
+---
+
+## Database Models
+
+### User
+
+- `id` (UUID, primary key)
+- `email` (unique)
+- `password` (hashed)
+- `role` (ADMIN, USER, DELIVERY_MAN, MODERATOR)
+- `isDeleted` (soft delete)
+- Timestamps
+
+### Profile
+
+- `id` (UUID, primary key)
+- `userId` (FK to User)
+- `name`
+- `image`
+- `phone`
+- `address`
+
+### Cake
+
+- `id` (UUID, primary key)
+- `sku` (unique)
+- `title`
+- `description`
+- `images` (array)
+- `price`
+- `category` (FK)
+- `type` (CUPCAKE, CAKE)
+- `customizable` (boolean)
+- `stock`
+- `size`
+- `flavour`
+- `soldAmount`
+- `isBestSeller`
+
+### CakeFeatures
+
+- `id` (UUID, primary key)
+- `cakeId` (FK, unique)
+- Specification arrays
+- Feature arrays
+- Nutrition arrays
+
+### Category
+
+- `id` (UUID, primary key)
+- `name` (unique)
+- `image`
+
+### Order
+
+- `id` (UUID, primary key)
+- `userId` (FK)
+- `cakeId` (FK)
+- `quantity`
+- `totalPrice`
+- `status` (PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED)
+- `paymentMethod` (CASH_ON_DELIVERY, ONLINE)
+- `message`
+- Timestamps
+
+### Rating
+
+- `id` (UUID, primary key)
+- `userId` (FK)
+- `cakeId` (FK)
+- `rating` (1-5)
+- `review`
+- Timestamps
+
+````
 
 ### ✅ User Login
 
@@ -57,8 +301,8 @@
 - **Response:**
 
 ```json
-{"success":true,"message":"User logged in successfully","data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNkNWM5MjY1LTc3OGMtNDZiNS04NjJlLTM0YTM0NjliYzc1MSIsImVtYWlsIjoidGVzdHVzZXIxNzczMDk0ODcwNzU4QGV4YW1wbGUuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NzMwOTQ4NzEsImV4cCI6MTc3MzY5OTY3MX0.dMZAcfr4xQ3kkZUvXCJpS3y5EfrfbpDG5CzBO-tsyek"}}
-```
+{"success":true,"message":"User logged in successfully","data":{"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjcyMjg5N2JmLTQ4NjgtNGY4NC05MTljLTY4YmM1ZTJlNjlkOSIsImVtYWlsIjoidGVzdHVzZXIxNzczMTcyNDgzNzMwQGV4YW1wbGUuY29tIiwicm9sZSI6IlVTRVIiLCJpYXQiOjE3NzMxNzI0ODQsImV4cCI6MTc3Mzc3NzI4NH0.yR_zeWvy0Y4JGbGuatIN79iZNlIXSjDPZpGiRmee9m0"}}
+````
 
 ### ✅ Login with Invalid Credentials (Negative Test)
 
@@ -67,19 +311,24 @@
 - **Response:**
 
 ```json
-{"success":false,"message":"Invalid email or password","errorSources":[{"path":"","message":"Invalid email or password"}],"stack":"Error: Invalid email or password\n    at Object.loginUser (/Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/auth/auth.service.ts:43:11)\n    at /Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/auth/auth.controller.ts:23:16"}
+{
+  "success": false,
+  "message": "Invalid email or password",
+  "errorSources": [{ "path": "", "message": "Invalid email or password" }],
+  "stack": "Error: Invalid email or password\n    at Object.loginUser (/Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/auth/auth.service.ts:43:11)\n    at /Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/auth/auth.controller.ts:23:16"
+}
 ```
 
-## Cakes Tests (3/4 Passed) ⚠️
+## Cakes Tests (1/4 Passed) ⚠️
 
-### ✅ CREATE Cake
+### ❌ CREATE Cake
 
 - **Endpoint:** `POST http://localhost:5555/api/v1/cakes/create-cake`
-- **Status Code:** 201 Created
+- **Status Code:** 500 Internal Server Error
 - **Response:**
 
 ```json
-{"success":true,"message":"Cake created successfully","data":{"id":"671fb529-e951-4b26-8787-40a547f80904","sku":"TEST-CAKE-1773094870758","title":"Test Chocolate Cake","description":"Delicious chocolate cake for testing","price":"25.99","avatar":"https://example.com/cake.jpg","type":"Chocolate","flavors":["Chocolate","Vanilla"],"weights":["500g","1kg","2kg"],"features":[],"additionalImages":[],"category":"Chocolate","stock":10,"specificationLabel":[],"specificationValue":[],"isActive":true,"isCu
+{"success":false,"message":"\nInvalid `prisma.cake.create()` invocation in\n/Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/cakes/cake.service.ts:9:34\n\n  6 const create_cake = async (req: Request) => {\n  7   const body = req.body\n  8 \n→ 9   const cake = await prisma.cake.create({\n        data: {\n          sku: \"TEST-CAKE-1773172483730\",\n          title: \"Test Chocolate Cake\",\n          description: \"Delicious chocolate cake for testing\",\n          images: [],\n
 ```
 
 ### ✅ GET All Cakes
@@ -89,81 +338,81 @@
 - **Response:**
 
 ```json
-{"success":true,"message":"Cakes fetched successfully","data":[{"id":"4761f894-10d4-47cb-b577-c39d1fd1b743","sku":"TEST-CAKE-1773094853898","title":"Test Chocolate Cake","description":"Delicious chocolate cake for testing","price":"29.99","avatar":"https://example.com/cake.jpg","type":"Chocolate","flavors":["Chocolate","Vanilla"],"weights":["500g","1kg","2kg"],"features":[],"additionalImages":[],"category":"Chocolate","stock":5,"specificationLabel":[],"specificationValue":[],"isActive":true,"isC
+{ "success": true, "message": "Cakes fetched successfully", "data": [] }
 ```
 
-### ✅ UPDATE Cake
+### ❌ UPDATE Cake
 
 - **Endpoint:** `PATCH http://localhost:5555/api/v1/cakes/update-cake/#CAKE_ID#`
-- **Status Code:** 200 OK
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":true,"message":"Cake updated successfully","data":{"id":"671fb529-e951-4b26-8787-40a547f80904","sku":"TEST-CAKE-1773094870758","title":"Test Chocolate Cake","description":"Delicious chocolate cake for testing","price":"29.99","avatar":"https://example.com/cake.jpg","type":"Chocolate","flavors":["Chocolate","Vanilla"],"weights":["500g","1kg","2kg"],"features":[],"additionalImages":[],"category":"Chocolate","stock":5,"specificationLabel":[],"specificationValue":[],"isActive":true,"isCus
+{ "success": false, "message": "API not found" }
 ```
 
 ### ❌ DELETE Cake
 
 - **Endpoint:** `DELETE http://localhost:5555/api/v1/cakes/delete-cake/#CAKE_ID#`
-- **Status Code:** 400 Bad Request
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":false,"message":"Invalid reference","errorSources":[{"path":"","message":"\nInvalid `prisma.cake.delete()` invocation in\n/Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/cakes/cake.service.ts:60:40\n\n  57 \n  58 const delete_cake = async (req: Request) => {\n  59   const id = req.params.id ?? req.body?.id\n→ 60   const cake = await prisma.cake.delete(\nForeign key constraint violated on the constraint: `carts_cakeId_fkey`"}],"stack":"PrismaClientKnownRequestError: \n
+{ "success": false, "message": "API not found" }
 ```
 
-## Carts Tests (3/4 Passed) ⚠️
+## Carts Tests (0/4 Passed) ⚠️
 
-### ✅ CREATE Cart
+### ❌ CREATE Cart
 
 - **Endpoint:** `POST http://localhost:5555/api/v1/carts/create-cart`
-- **Status Code:** 201 Created
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":true,"message":"Cart created successfully","data":{"id":"78beccbf-caff-48e3-bb33-39bf799a2342","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","quantity":2,"createdAt":"2026-03-09T22:21:11.543Z","updatedAt":"2026-03-09T22:21:11.543Z"}}
+{ "success": false, "message": "API not found" }
 ```
 
-### ✅ GET All Carts
+### ❌ GET All Carts
 
 - **Endpoint:** `GET http://localhost:5555/api/v1/carts`
-- **Status Code:** 200 OK
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":true,"message":"Carts fetched successfully","data":[{"id":"05e4189d-e36b-4732-b724-f750e5411975","userId":"ef91f8e5-ebe2-465f-9ed6-8b5bcd660b69","cakeId":"4761f894-10d4-47cb-b577-c39d1fd1b743","quantity":5,"createdAt":"2026-03-09T22:20:55.252Z","updatedAt":"2026-03-09T22:20:55.677Z"},{"id":"78beccbf-caff-48e3-bb33-39bf799a2342","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","quantity":2,"createdAt":"2026-03-09T22:21:11.543Z","updatedAt"
+{ "success": false, "message": "API not found" }
 ```
 
-### ✅ UPDATE Cart
+### ❌ UPDATE Cart
 
 - **Endpoint:** `PATCH http://localhost:5555/api/v1/carts/update-cart/#CART_ID#`
-- **Status Code:** 200 OK
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":true,"message":"Carts updated successfully","data":{"id":"78beccbf-caff-48e3-bb33-39bf799a2342","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","quantity":5,"createdAt":"2026-03-09T22:21:11.543Z","updatedAt":"2026-03-09T22:21:11.950Z"}}
+{ "success": false, "message": "API not found" }
 ```
 
 ### ❌ DELETE Cart
 
 - **Endpoint:** `DELETE http://localhost:5555/api/v1/carts/delete-cart/#CART_ID#`
-- **Status Code:** 400 Bad Request
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-No response
+{ "success": false, "message": "API not found" }
 ```
 
-## Orders Tests (4/4 Passed) ✅
+## Orders Tests (1/4 Passed) ⚠️
 
-### ✅ CREATE Order
+### ❌ CREATE Order
 
 - **Endpoint:** `POST http://localhost:5555/api/v1/orders/create-order`
-- **Status Code:** 201 Created
+- **Status Code:** 500 Internal Server Error
 - **Response:**
 
 ```json
-{"success":true,"message":"Order created successfully","data":{"id":"5c2ec65b-bf1d-4448-9297-31524ab0013b","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","quantity":2,"totalPrice":"51.98","status":"PENDING","paymentMethod":"COD","message":null,"createdAt":"2026-03-09T22:21:11.611Z","updatedAt":"2026-03-09T22:21:11.611Z"}}
+{"success":false,"message":"\nInvalid `prisma.order.create()` invocation in\n/Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/orders/order.service.ts:17:36\n\n  14   message,\n  15 } = req.body\n  16 \n→ 17 const order = await prisma.order.create({\n       data: {\n         userId: \"722897bf-4868-4f84-919c-68bc5e2e69d9\",\n         cakeId: \"\",\n         quantity: 2,\n         totalPrice: 51.98,\n         status: \"PENDING\",\n         paymentMethod: \"COD\",\n
 ```
 
 ### ✅ GET All Orders
@@ -173,39 +422,39 @@ No response
 - **Response:**
 
 ```json
-{"success":true,"message":"Orders fetched successfully","data":[{"id":"5c2ec65b-bf1d-4448-9297-31524ab0013b","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","quantity":2,"totalPrice":"51.98","status":"PENDING","paymentMethod":"COD","message":null,"createdAt":"2026-03-09T22:21:11.611Z","updatedAt":"2026-03-09T22:21:11.611Z"}]}
+{ "success": true, "message": "Orders fetched successfully", "data": [] }
 ```
 
-### ✅ UPDATE Order
+### ❌ UPDATE Order
 
 - **Endpoint:** `PATCH http://localhost:5555/api/v1/orders/update-order/#ORDER_ID#`
-- **Status Code:** 200 OK
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":true,"message":"Order updated successfully","data":{"id":"5c2ec65b-bf1d-4448-9297-31524ab0013b","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","quantity":2,"totalPrice":"51.98","status":"PROCESSING","paymentMethod":"COD","message":null,"createdAt":"2026-03-09T22:21:11.611Z","updatedAt":"2026-03-09T22:21:12.084Z"}}
+{ "success": false, "message": "API not found" }
 ```
 
-### ✅ DELETE Order
+### ❌ DELETE Order
 
 - **Endpoint:** `DELETE http://localhost:5555/api/v1/orders/delete-order/#ORDER_ID#`
-- **Status Code:** 200 OK
+- **Status Code:** 0 Connection Error
 - **Response:**
 
 ```json
-{"success":true,"message":"Order deleted successfully","data":{"id":"5c2ec65b-bf1d-4448-9297-31524ab0013b","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","quantity":2,"totalPrice":"51.98","status":"PROCESSING","paymentMethod":"COD","message":null,"createdAt":"2026-03-09T22:21:11.611Z","updatedAt":"2026-03-09T22:21:12.084Z"}}
+read ECONNRESET
 ```
 
-## Ratings Tests (4/4 Passed) ✅
+## Ratings Tests (1/4 Passed) ⚠️
 
-### ✅ CREATE Rating
+### ❌ CREATE Rating
 
 - **Endpoint:** `POST http://localhost:5555/api/v1/ratings/create-rating`
-- **Status Code:** 201 Created
+- **Status Code:** 400 Bad Request
 - **Response:**
 
 ```json
-{"success":true,"message":"Rating created successfully","data":{"id":"b76bfd46-5bac-41b5-a148-c9df6436b4d6","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","rating":5,"maxRating":5,"review":"Excellent cake! Highly recommended.","createdAt":"2026-03-09T22:21:11.680Z","updatedAt":"2026-03-09T22:21:11.680Z"}}
+{"success":false,"message":"Database error","errorSources":[{"path":"","message":"\nInvalid `prisma.rating.create()` invocation in\n/Users/macminim4/Desktop/Projects/ug-cake-server/src/app/modules/ratings/rating.service.ts:9:38\n\n  6 const create_rating = async (req: Request) => {\n  7   const body = req.body\n  8 \n→ 9   const rating = await prisma.rating.create(\nInvalid input value: invalid input syntax for type uuid: \"\""}],"stack":"PrismaClientKnownRequestError: \nInvalid `prisma.rating.c
 ```
 
 ### ✅ GET All Ratings
@@ -215,27 +464,27 @@ No response
 - **Response:**
 
 ```json
-{"success":true,"message":"Ratings fetched successfully","data":[{"id":"b76bfd46-5bac-41b5-a148-c9df6436b4d6","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","rating":5,"maxRating":5,"review":"Excellent cake! Highly recommended.","createdAt":"2026-03-09T22:21:11.680Z","updatedAt":"2026-03-09T22:21:11.680Z"}]}
+{ "success": true, "message": "Ratings fetched successfully", "data": [] }
 ```
 
-### ✅ UPDATE Rating
+### ❌ UPDATE Rating
 
 - **Endpoint:** `PATCH http://localhost:5555/api/v1/ratings/update-rating/#RATING_ID#`
-- **Status Code:** 200 OK
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":true,"message":"Rating updated successfully","data":{"id":"b76bfd46-5bac-41b5-a148-c9df6436b4d6","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","rating":4,"maxRating":5,"review":"Very good cake!","createdAt":"2026-03-09T22:21:11.680Z","updatedAt":"2026-03-09T22:21:12.215Z"}}
+{ "success": false, "message": "API not found" }
 ```
 
-### ✅ DELETE Rating
+### ❌ DELETE Rating
 
 - **Endpoint:** `DELETE http://localhost:5555/api/v1/ratings/delete-rating/#RATING_ID#`
-- **Status Code:** 200 OK
+- **Status Code:** 404 Not Found
 - **Response:**
 
 ```json
-{"success":true,"message":"Rating deleted successfully","data":{"id":"b76bfd46-5bac-41b5-a148-c9df6436b4d6","userId":"3d5c9265-778c-46b5-862e-34a3469bc751","cakeId":"671fb529-e951-4b26-8787-40a547f80904","rating":4,"maxRating":5,"review":"Very good cake!","createdAt":"2026-03-09T22:21:11.680Z","updatedAt":"2026-03-09T22:21:12.215Z"}}
+{ "success": false, "message": "API not found" }
 ```
 
 ---
@@ -243,9 +492,11 @@ No response
 ## API Endpoints Reference
 
 ### System
+
 - `GET /` - Server health check endpoint
 
 ### Authentication
+
 - `POST /api/v1/auth/register` - Register a new user
   - Body: `{ email, password, name? }`
   - Returns: User token
@@ -262,6 +513,7 @@ No response
   - Body: Cookie `refreshToken`
 
 ### Cakes
+
 - `POST /api/v1/cakes` - Create a new cake
   - Body: `{ name, description, price, image, category, inStock }`
   - Returns: Created cake object
@@ -280,6 +532,7 @@ No response
   - Returns: Success message
 
 ### Carts
+
 - `POST /api/v1/carts` - Create cart item
   - Body: `{ userId, cakeId, quantity }`
   - Returns: Created cart item
@@ -297,6 +550,7 @@ No response
   - Returns: Success message
 
 ### Orders
+
 - `POST /api/v1/orders` - Create an order
   - Body: `{ userId, totalPrice, paymentMethod, orderStatus, items }`
   - Returns: Created order object
@@ -314,6 +568,7 @@ No response
   - Returns: Success message
 
 ### Ratings
+
 - `POST /api/v1/ratings` - Create a rating
   - Body: `{ cakeId, userId, rating, review }`
   - Returns: Created rating object
@@ -329,4 +584,3 @@ No response
 - `DELETE /api/v1/ratings/:id` - Delete a rating
   - Params: Rating ID
   - Returns: Success message
-

@@ -11,20 +11,20 @@ const create_cake = async (req: Request) => {
       sku: body.sku,
       title: body.title,
       description: body.description,
+      images: body.images ?? [],
       price: body.price,
-      avatar: body.avatar,
-      type: body.type,
-      flavors: body.flavors ?? [],
-      weights: body.weights ?? [],
       category: body.category,
+      type: body.type,
+      customizable: body.customizable ?? false,
       stock: body.stock ?? 0,
-      isActive: body.isActive ?? true,
-      isCustomizable: body.isCustomizable ?? false,
-      isNew: body.isNew ?? false,
+      size: body.size ?? null,
+      flavour: body.flavour ?? null,
+      soldAmount: body.soldAmount ?? 0,
       isBestSeller: body.isBestSeller ?? false,
-      isSale: body.isSale ?? false,
-      isTrending: body.isTrending ?? false,
-      isSpecial: body.isSpecial ?? false,
+      isDeleted: body.isDeleted ?? false,
+    },
+    include: {
+      cakeFeatures: true,
     },
   })
 
@@ -32,13 +32,22 @@ const create_cake = async (req: Request) => {
 }
 
 const get_all_cake = async () => {
-  const cakes = await prisma.cake.findMany()
+  const cakes = await prisma.cake.findMany({
+    include: {
+      cakeFeatures: true,
+    },
+  })
   return cakes
 }
 
 const get_cake = async (req: Request) => {
   const id = req.params.id ?? req.body?.id
-  const cake = await prisma.cake.findUnique({ where: { id } })
+  const cake = await prisma.cake.findUnique({
+    where: { id },
+    include: {
+      cakeFeatures: true,
+    },
+  })
   if (!cake) {
     throw new AppError(httpStatus.NOT_FOUND, "Cake not found")
   }
@@ -51,6 +60,9 @@ const update_cake = async (req: Request) => {
   const cake = await prisma.cake.update({
     where: { id },
     data: payload,
+    include: {
+      cakeFeatures: true,
+    },
   })
   return cake
 }

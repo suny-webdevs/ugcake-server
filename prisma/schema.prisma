@@ -9,116 +9,20 @@ datasource db {
   provider = "postgresql"
 }
 
-model User {
-  id          String   @id @unique @default(uuid()) @db.Uuid
-  name        String   @db.VarChar(255)
-  email       String   @unique @db.VarChar(255)
-  password    String   @db.VarChar(255)
-  role        Role     @default(USER)
-  address     String   @db.Text
-  phone       String   @db.VarChar(255)
-  image       String   @db.Text
-  isActive    Boolean  @default(true)
-  isVerified  Boolean  @default(false)
-  isDeleted   Boolean  @default(false)
-  isBlocked   Boolean  @default(false)
-  isSuspended Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  orders      Order[]
-  carts       Cart[]
-  ratings     Rating[]
-}
-
-enum Role {
+// Enums
+enum ROLE {
   ADMIN
   USER
-  MODERATOR
   DELIVERY_MAN
+  MODERATOR
 }
 
-model Cake {
-  id                 String   @id @unique @default(uuid()) @db.Uuid
-  sku                String   @unique @db.VarChar(255)
-  title              String   @db.VarChar(255)
-  description        String   @db.Text
-  price              Decimal  @db.Decimal(10, 2)
-  avatar             String   @db.Text
-  type               String   @db.VarChar(255)
-  flavors            String[]
-  weights            String[]
-  features           String[]
-  additionalImages   String[]
-  category           String   @db.VarChar(255)
-  stock              Int      @default(0)
-  specificationLabel String[]
-  specificationValue String[]
-  isActive           Boolean  @default(true)
-  isCustomizable     Boolean  @default(false)
-  isNew              Boolean  @default(false)
-  isBestSeller       Boolean  @default(false)
-  isSale             Boolean  @default(false)
-  isTrending         Boolean  @default(false)
-  isSpecial          Boolean  @default(false)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-
-  orders  Order[]
-  carts   Cart[]
-  ratings Rating?
-
-  @@map("cakes")
+enum CAKE_TYPE {
+  CUPCAKE
+  CAKE
 }
 
-model Rating {
-  id        String   @id @unique @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  cakeId    String   @unique @db.Uuid
-  cake      Cake     @relation(fields: [cakeId], references: [id])
-  rating    Int      @default(0)
-  maxRating Int      @default(5)
-  review    String   @db.Text
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, cakeId])
-  @@map("ratings")
-}
-
-model Cart {
-  id        String   @id @unique @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  user      User     @relation(fields: [userId], references: [id])
-  cakeId    String   @db.Uuid
-  cake      Cake     @relation(fields: [cakeId], references: [id])
-  quantity  Int      @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([userId, cakeId])
-  @@map("carts")
-}
-
-model Order {
-  id            String        @id @unique @default(uuid()) @db.Uuid
-  userId        String        @db.Uuid
-  user          User          @relation(fields: [userId], references: [id])
-  cakeId        String        @db.Uuid
-  cake          Cake          @relation(fields: [cakeId], references: [id])
-  quantity      Int           @default(1)
-  totalPrice    Decimal       @db.Decimal(10, 2)
-  status        OrderStatus   @default(PENDING)
-  paymentMethod PaymentMethod @default(COD)
-  message       String?       @db.Text
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  @@index([userId, cakeId])
-  @@map("orders")
-}
-
-enum OrderStatus {
+enum STATUS {
   PENDING
   PROCESSING
   SHIPPED
@@ -126,7 +30,123 @@ enum OrderStatus {
   CANCELLED
 }
 
-enum PaymentMethod {
-  COD
+enum PAYMENT_METHOD {
+  CASH_ON_DELIVERY
   ONLINE
+}
+
+// Models
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  role      ROLE     @default(USER)
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile Profile?
+  orders  Order[]
+  ratings Rating[]
+
+  @@map("users")
+}
+
+model Profile {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String   @db.VarChar(255)
+  image     String?  @db.Text
+  phone     String?  @db.VarChar(255)
+  address   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("profiles")
+}
+
+model Cake {
+  id           String    @id @default(uuid()) @db.Uuid
+  sku          String    @unique @db.VarChar(255)
+  title        String    @db.VarChar(255)
+  description  String    @db.Text
+  images       String[] // Array of image URLs
+  price        Decimal   @db.Decimal(10, 2)
+  category     String    @db.VarChar(255)
+  type         CAKE_TYPE
+  customizable Boolean   @default(false)
+  stock        Int       @default(0)
+  size         String?   @db.VarChar(255)
+  flavour      String?   @db.VarChar(255)
+  soldAmount   Int       @default(0)
+  isBestSeller Boolean   @default(false)
+  isDeleted    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  cakeFeatures CakeFeatures?
+  orders       Order[]
+  ratings      Rating[]
+
+  @@map("cakes")
+}
+
+model CakeFeatures {
+  id                  String   @id @default(uuid()) @db.Uuid
+  cakeId              String   @unique @db.Uuid
+  cake                Cake     @relation(fields: [cakeId], references: [id], onDelete: Cascade)
+  specificationsLabel String[] // Array of specification labels
+  specificationValue  String[] // Array of specification values
+  features            String[] // Array of features
+  nutritionLabel      String[] // Array of nutrition labels
+  nutritionValue      String[] // Array of nutrition values
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("cake_features")
+}
+
+model Category {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String   @unique @db.VarChar(255)
+  image     String?  @db.Text
+  cakes     String[] // Array of cake IDs
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("categories")
+}
+
+model Order {
+  id            String         @id @default(uuid()) @db.Uuid
+  userId        String         @db.Uuid
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cakeId        String         @db.Uuid
+  cake          Cake           @relation(fields: [cakeId], references: [id], onDelete: Cascade)
+  quantity      Int
+  totalPrice    Decimal        @db.Decimal(10, 2)
+  status        STATUS         @default(PENDING)
+  paymentMethod PAYMENT_METHOD
+  message       String?        @db.Text
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  @@index([userId, cakeId])
+  @@map("orders")
+}
+
+model Rating {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cakeId    String   @db.Uuid
+  cake      Cake     @relation(fields: [cakeId], references: [id], onDelete: Cascade)
+  rating    Int
+  review    String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, cakeId])
+  @@map("ratings")
 }

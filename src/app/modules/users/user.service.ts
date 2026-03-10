@@ -8,18 +8,12 @@ const create_user = async (req: Request) => {
 
   const user = await prisma.user.create({
     data: {
-      name: body.name,
       email: body.email,
       password: body.password,
       role: body.role ?? "USER",
-      address: body.address,
-      phone: body.phone,
-      image: body.image ?? "",
-      isActive: body.isActive ?? true,
-      isVerified: body.isVerified ?? false,
-      isDeleted: body.isDeleted ?? false,
-      isBlocked: body.isBlocked ?? false,
-      isSuspended: body.isSuspended ?? false,
+    },
+    include: {
+      profile: true,
     },
   })
 
@@ -27,13 +21,22 @@ const create_user = async (req: Request) => {
 }
 
 const get_all_user = async () => {
-  const users = await prisma.user.findMany()
+  const users = await prisma.user.findMany({
+    include: {
+      profile: true,
+    },
+  })
   return users
 }
 
 const get_user = async (req: Request) => {
   const id = req.params.id ?? req.body?.id
-  const user = await prisma.user.findUnique({ where: { id } })
+  const user = await prisma.user.findUnique({
+    where: { id },
+    include: {
+      profile: true,
+    },
+  })
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found")
   }
@@ -46,6 +49,9 @@ const update_user = async (req: Request) => {
   const user = await prisma.user.update({
     where: { id },
     data: payload,
+    include: {
+      profile: true,
+    },
   })
   return user
 }

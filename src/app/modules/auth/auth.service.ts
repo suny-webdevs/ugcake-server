@@ -180,10 +180,10 @@ const registerUser = async (payload: TAuth) => {
     data: {
       email: payload.email,
       password: hashedPassword,
-      name: payload.name || (generateUsername(payload.email) as string),
-      address: "",
-      phone: "",
-      image: "",
+      role: payload.role || "USER",
+    },
+    include: {
+      profile: true,
     },
   })
 
