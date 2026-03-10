@@ -22,15 +22,15 @@ const auth = (...requiredRoles: TUserRole[]) => {
         config.jwt_access_secret as string,
       ) as JwtPayload
 
-      const { id, role } = decoded
+      const { email, role } = decoded
 
-      if (!id || !role) {
+      if (!email || !role) {
         throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token payload")
       }
 
-      // Finding user by id from token
+      // Finding user by email from token
       const user = await prisma.user.findUnique({
-        where: { id: id as string },
+        where: { email: email as string },
       })
 
       // Checking if user exists
