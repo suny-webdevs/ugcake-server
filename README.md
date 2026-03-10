@@ -139,7 +139,7 @@ erDiagram
         string sku UK
         string title
         string description
-        string[] images
+        string images "JSON array"
         decimal price
         string category FK
         CAKETYPE type
@@ -157,11 +157,11 @@ erDiagram
     CAKEFEATURES {
         string id PK
         string cakeId FK UK
-        string[] specificationsLabel
-        string[] specificationValue
-        string[] features
-        string[] nutritionLabel
-        string[] nutritionValue
+        string specsLabel "array"
+        string specsValue "array"
+        string features "array"
+        string nutritionLabel "array"
+        string nutritionValue "array"
     }
 
     CATEGORY {
