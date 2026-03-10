@@ -55,6 +55,147 @@ Create `.env` file with your database and JWT configuration.
 http://localhost:5555/api/v1
 ```
 
+## Architecture Overview
+
+```mermaid
+flowchart TB
+    subgraph Client["Client Applications"]
+        Web["🌐 Web"]
+        Mobile["📱 Mobile"]
+    end
+
+    subgraph API["Express API Server"]
+        Router["Router<br/>routes/index.ts"]
+        Auth["Auth Module<br/>Login/Register"]
+        Middleware["Middlewares<br/>Auth, Validation, Error Handler"]
+    end
+
+    subgraph Modules["Core Modules"]
+        Users["Users<br/>CRUD"]
+        Profiles["Profiles<br/>CRUD"]
+        Cakes["Cakes<br/>CRUD"]
+        Features["CakeFeatures<br/>CRUD"]
+        Categories["Categories<br/>CRUD"]
+        Orders["Orders<br/>CRUD"]
+        Ratings["Ratings<br/>CRUD"]
+    end
+
+    subgraph Data["Data Layer"]
+        Prisma["Prisma ORM"]
+        DB["PostgreSQL<br/>Database"]
+    end
+
+    Client -->|HTTP Requests| Router
+    Router --> Auth
+    Router --> Modules
+    Auth --> Middleware
+    Modules --> Middleware
+    Middleware --> Prisma
+    Prisma -->|SQL Queries| DB
+    DB -->|Result| Prisma
+    Prisma -->|Response| Middleware
+    Middleware -->|JSON| Router
+    Router -->|HTTP Response| Client
+
+    style Client fill:#e1f5ff
+    style API fill:#fff3e0
+    style Modules fill:#f3e5f5
+    style Data fill:#e8f5e9
+```
+
+## Database Diagram
+
+```mermaid
+erDiagram
+    USER ||--|| PROFILE : has
+    USER ||--o{ ORDER : places
+    USER ||--o{ RATING : gives
+    CATEGORY ||--o{ CAKE : contains
+    CAKE ||--o{ ORDER : "ordered in"
+    CAKE ||--o{ RATING : "rated by"
+    CAKE ||--|| CAKEFEATURES : "has features"
+
+    USER {
+        string id PK
+        string email UK
+        string password
+        ROLE role
+        boolean isDeleted
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    PROFILE {
+        string id PK
+        string userId FK
+        string name
+        string image "nullable"
+        string phone "nullable"
+        string address "nullable"
+    }
+
+    CAKE {
+        string id PK
+        string sku UK
+        string title
+        string description
+        string[] images
+        decimal price
+        string category FK
+        CAKETYPE type
+        boolean customizable
+        int stock
+        string size
+        string flavour
+        int soldAmount
+        boolean isBestSeller
+        boolean isDeleted
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    CAKEFEATURES {
+        string id PK
+        string cakeId FK UK
+        string[] specificationsLabel
+        string[] specificationValue
+        string[] features
+        string[] nutritionLabel
+        string[] nutritionValue
+    }
+
+    CATEGORY {
+        string id PK
+        string name UK
+        string image
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    ORDER {
+        string id PK
+        string userId FK
+        string cakeId FK
+        int quantity
+        decimal totalPrice
+        STATUS status
+        PAYMENTMETHOD paymentMethod
+        string message "nullable"
+        timestamp createdAt
+        timestamp updatedAt
+    }
+
+    RATING {
+        string id PK
+        string userId FK
+        string cakeId FK
+        int rating
+        string review
+        timestamp createdAt
+        timestamp updatedAt
+    }
+```
+
 ## Project Structure
 
 ```
