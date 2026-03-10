@@ -105,96 +105,9 @@ flowchart TB
 
 ## Database Diagram
 
-```mermaid
-erDiagram
-    USER ||--|| PROFILE : has
-    USER ||--o{ ORDER : places
-    USER ||--o{ RATING : gives
-    CATEGORY ||--o{ CAKE : contains
-    CAKE ||--o{ ORDER : "ordered in"
-    CAKE ||--o{ RATING : "rated by"
-    CAKE ||--|| CAKEFEATURES : "has features"
+[See Database Diagram in Google Drive](https://drive.google.com/file/d/1vAbIRuuJXIzOpQUPt_Y1R7Jed8pL1tst/view?usp=drive_link)
 
-    USER {
-        string id PK
-        string email UK
-        string password
-        ROLE role
-        boolean isDeleted
-        timestamp createdAt
-        timestamp updatedAt
-    }
-
-    PROFILE {
-        string id PK
-        string userId FK
-        string name
-        string image "nullable"
-        string phone "nullable"
-        string address "nullable"
-    }
-
-    CAKE {
-        string id PK
-        string sku UK
-        string title
-        string description
-        string images "JSON array"
-        decimal price
-        string category FK
-        CAKETYPE type
-        boolean customizable
-        int stock
-        string size
-        string flavour
-        int soldAmount
-        boolean isBestSeller
-        boolean isDeleted
-        timestamp createdAt
-        timestamp updatedAt
-    }
-
-    CAKEFEATURES {
-        string id PK
-        string cakeId FK UK
-        string specsLabel "array"
-        string specsValue "array"
-        string features "array"
-        string nutritionLabel "array"
-        string nutritionValue "array"
-    }
-
-    CATEGORY {
-        string id PK
-        string name UK
-        string image
-        timestamp createdAt
-        timestamp updatedAt
-    }
-
-    ORDER {
-        string id PK
-        string userId FK
-        string cakeId FK
-        int quantity
-        decimal totalPrice
-        STATUS status
-        PAYMENTMETHOD paymentMethod
-        string message "nullable"
-        timestamp createdAt
-        timestamp updatedAt
-    }
-
-    RATING {
-        string id PK
-        string userId FK
-        string cakeId FK
-        int rating
-        string review
-        timestamp createdAt
-        timestamp updatedAt
-    }
-```
+![Diagram](./diagram.png)
 
 ## Project Structure
 
