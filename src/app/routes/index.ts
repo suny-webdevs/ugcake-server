@@ -7,6 +7,7 @@ import { ratingRoutes } from "../modules/ratings/rating.route"
 import { profileRoute } from "../modules/profile/profile.route"
 import { categoryRoute } from "../modules/category/category.route"
 import { cakeFeaturesRoute } from "../modules/cake-features/cake-features.route"
+import { cakeDetailsRoutes } from "../modules/cake-details/cake-details.route"
 
 const router = express.Router()
 
@@ -38,6 +39,10 @@ const routerData = [
   {
     path: "/cake-features",
     route: cakeFeaturesRoute,
+  },
+  {
+    path: "/cake-details",
+    route: cakeDetailsRoutes,
   },
   {
     path: "/ratings",

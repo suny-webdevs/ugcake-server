@@ -105,7 +105,7 @@ flowchart TB
 
 ## Database Diagram
 
-![Download Database Diagram (Latest)](https://drive.google.com/file/d/1vAbIRuuJXIzOpQUPt_Y1R7Jed8pL1tst/view?usp=drive_link)
+[Download Database Diagram (Latest)](https://drive.google.com/file/d/1vAbIRuuJXIzOpQUPt_Y1R7Jed8pL1tst/view?usp=drive_link)
 
 ![Diagram](./diagram.png)
 
