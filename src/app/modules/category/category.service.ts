@@ -10,7 +10,6 @@ const create_category = async (req: Request) => {
     data: {
       name: body.name,
       image: body.image ?? null,
-      cakes: body.cakes ?? [],
     },
   })
 
