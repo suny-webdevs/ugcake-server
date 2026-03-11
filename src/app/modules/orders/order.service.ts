@@ -14,6 +14,23 @@ const create_order = async (req: Request) => {
     message,
   } = req.body
 
+  // Check if cake exists and has sufficient stock
+  const cake = await prisma.cake.findUnique({
+    where: { id: cakeId },
+  })
+
+  if (!cake) {
+    throw new AppError(httpStatus.NOT_FOUND, "Cake not found")
+  }
+
+  if (cake.stock < quantity) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Insufficient stock. Available: ${cake.stock}, Requested: ${quantity}`,
+    )
+  }
+
+  // Create order and update cake stock and sold amount in transaction
   const order = await prisma.order.create({
     data: {
       userId,
@@ -27,6 +44,19 @@ const create_order = async (req: Request) => {
     include: {
       user: true,
       cake: true,
+    },
+  })
+
+  // Update cake stock and soldAmount
+  await prisma.cake.update({
+    where: { id: cakeId },
+    data: {
+      stock: {
+        decrement: quantity,
+      },
+      soldAmount: {
+        increment: quantity,
+      },
     },
   })
 

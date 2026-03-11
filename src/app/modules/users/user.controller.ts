@@ -4,10 +4,10 @@ import sendResponse from "../../utils/sendResponse"
 import { userService } from "./user.service"
 import httpStatus from "http-status"
 
-const createUser = catchAsync(async (req: Request, res: Response) => {
-  const data = await userService.create_user(req)
-  sendResponse(res, httpStatus.CREATED, "User created successfully", data)
-})
+// const createUser = catchAsync(async (req: Request, res: Response) => {
+//   const data = await userService.create_user(req)
+//   sendResponse(res, httpStatus.CREATED, "User created successfully", data)
+// })
 
 const getAllUser = catchAsync(async (req: Request, res: Response) => {
   const data = await userService.get_all_user()
@@ -30,7 +30,7 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
 })
 
 export const userController = {
-  createUser,
+  // createUser,
   getAllUser,
   getUser,
   updateUser,
