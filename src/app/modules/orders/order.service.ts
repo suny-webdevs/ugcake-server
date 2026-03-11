@@ -12,6 +12,7 @@ const create_order = async (req: Request) => {
     status,
     paymentMethod,
     message,
+    customizationDetails,
   } = req.body
 
   // Check if cake exists and has sufficient stock
@@ -44,6 +45,7 @@ const create_order = async (req: Request) => {
     include: {
       user: true,
       cake: true,
+      cakeDetails: true,
     },
   })
 
@@ -60,7 +62,37 @@ const create_order = async (req: Request) => {
     },
   })
 
-  return order
+  // If cake is customizable, create cake details
+  if (cake.customizable && customizationDetails) {
+    await prisma.cakeDetails.create({
+      data: {
+        orderId: order.id,
+        size: customizationDetails.size,
+        text: customizationDetails.text,
+        flavour: customizationDetails.flavour,
+        isEggLess: customizationDetails.isEggLess ?? false,
+        isLessCream: customizationDetails.isLessCream ?? false,
+        isExtraJuicy: customizationDetails.isExtraJuicy ?? false,
+        shape: customizationDetails.shape,
+        icingType: customizationDetails.icingType,
+        icingColor: customizationDetails.icingColor,
+        tiers: customizationDetails.tiers,
+        height: customizationDetails.height,
+      },
+    })
+  }
+
+  // Fetch updated order with cake details
+  const updatedOrder = await prisma.order.findUnique({
+    where: { id: order.id },
+    include: {
+      user: true,
+      cake: true,
+      cakeDetails: true,
+    },
+  })
+
+  return updatedOrder
 }
 
 const get_all_order = async () => {
