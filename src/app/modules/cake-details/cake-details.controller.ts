@@ -6,7 +6,12 @@ import { cakeDetailsService } from "./cake-details.service"
 
 const createCakeDetails = catchAsync(async (req: Request, res: Response) => {
   const data = await cakeDetailsService.create_cake_details(req)
-  sendResponse(res, httpStatus.CREATED, "Cake details created successfully", data)
+  sendResponse(
+    res,
+    httpStatus.CREATED,
+    "Cake details created successfully",
+    data,
+  )
 })
 
 const getAllCakeDetails = catchAsync(async (req: Request, res: Response) => {
@@ -20,11 +25,18 @@ const getCakeDetails = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, httpStatus.OK, "Cake details retrieved successfully", data)
 })
 
-const getCakeDetailsByOrder = catchAsync(async (req: Request, res: Response) => {
-  const orderId = req.params.orderId as string
-  const data = await cakeDetailsService.get_cake_details_by_order(orderId)
-  sendResponse(res, httpStatus.OK, "Cake details retrieved successfully", data)
-})
+const getCakeDetailsByOrder = catchAsync(
+  async (req: Request, res: Response) => {
+    const orderId = req.params.orderId as string
+    const data = await cakeDetailsService.get_cake_details_by_order(orderId)
+    sendResponse(
+      res,
+      httpStatus.OK,
+      "Cake details retrieved successfully",
+      data,
+    )
+  },
+)
 
 const updateCakeDetails = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string

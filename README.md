@@ -75,6 +75,7 @@ flowchart TB
         Profiles["Profiles<br/>CRUD"]
         Cakes["Cakes<br/>CRUD"]
         Features["CakeFeatures<br/>CRUD"]
+        Details["CakeDetails<br/>Customization"]
         Categories["Categories<br/>CRUD"]
         Orders["Orders<br/>CRUD"]
         Ratings["Ratings<br/>CRUD"]
@@ -120,6 +121,7 @@ src/
 │   │   ├── profiles/       # User profiles
 │   │   ├── cakes/          # Cake products
 │   │   ├── cake-features/  # Cake specifications & nutrition
+│   │   ├── cake-details/   # Order customization details
 │   │   ├── categories/     # Cake categories
 │   │   ├── orders/         # Order management
 │   │   └── ratings/        # Cake ratings & reviews
@@ -141,6 +143,7 @@ src/
 - `Profile` - Extended user info (name, phone, address)
 - `Cake` - Cake products with pricing & stock
 - `CakeFeatures` - Specifications, features, nutrition info
+- `CakeDetails` - Order-specific customization details
 - `Category` - Cake categories
 - `Order` - Customer orders with status tracking
 - `Rating` - User reviews for cakes
@@ -151,6 +154,12 @@ src/
 - `CAKE_TYPE` - CUPCAKE, CAKE
 - `STATUS` - PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED
 - `PAYMENT_METHOD` - CASH_ON_DELIVERY, ONLINE
+- `FLAVOUR` - VANILLA, CHOCOLATE, STRAWBERRY, RED_VELVET, CARROT, CHEESECAKE, LEMON, COFFEE, PISTACHIO, MATCHA
+- `SHAPE` - ROUND, SQUARE, RECTANGULAR, HEART, OVAL
+- `ICING_TYPE` - BUTTERCREAM, FONDANT, ROYAL_ICING, CREAM_CHEESE, GANACHE
+- `ICING_COLOR` - WHITE, BLACK, RED, PINK, BLUE, GREEN, YELLOW, PURPLE, GOLD, SILVER
+- `TIERS` - ONE, TWO, THREE, FOUR, FIVE
+- `HEIGHT` - SMALL, MEDIUM, LARGE, EXTRA_LARGE
 
 ## API Endpoints
 
@@ -206,6 +215,15 @@ src/
 - `GET /api/v1/cake-features/by-cake/:cakeId` - Get features by cake ID
 - `PATCH /api/v1/cake-features/update-cake-features/:id` - Update features
 - `DELETE /api/v1/cake-features/delete-cake-features/:id` - Delete features
+
+### Cake Details
+
+- `GET /api/v1/cake-details` - Get all cake details
+- `POST /api/v1/cake-details/create-cake-details` - Create cake customization details
+- `GET /api/v1/cake-details/:id` - Get cake details by ID
+- `GET /api/v1/cake-details/by-order/:orderId` - Get cake details by order ID
+- `PATCH /api/v1/cake-details/update-cake-details/:id` - Update cake details
+- `DELETE /api/v1/cake-details/delete-cake-details/:id` - Delete cake details
 
 ### Orders
 
