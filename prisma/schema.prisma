@@ -35,6 +35,83 @@ enum PAYMENT_METHOD {
   ONLINE
 }
 
+enum FLAVOUR {
+  BLACKFOREST
+  VANILLA
+  WHITEFOREST
+  CLASSIC_CHOCOLATE
+  BUTTERSCOTCH
+  PINEAPPLE
+  STRAWBERRY
+  BLUEBERRY
+  CHOCOVANILLA
+  CRUNCHY_BUTTERSCOTCH
+  CHOCOLATE_TRUFFLE
+  MANGO
+  HAZELNUT
+  OPERA
+  RED_VELVET
+  OREO
+  MOCHA
+  RASMALAI
+  SUGERFREE_VANILLA
+  MIX_FRUITS
+  CHOCO_BERRY
+  CHOCOLATE_OVERLOAD
+}
+
+enum SHAPE {
+  ROUND
+  SQUARE
+  RECTANGULAR
+  HEART
+  OVAL
+}
+
+enum ICING_TYPE {
+  BUTTERCREAM
+  FONDANT
+  ROYAL_ICING
+  CREAM_CHEESE
+  GANACHE
+}
+
+enum ICING_COLOR {
+  BLUE
+  PINK
+  RED
+  WHITE
+  PURPLE
+  YELLOW
+  ORANGE
+  GRAY
+  DARK_CHOCOLATE
+  BROWN
+  CREAM
+  BLACK
+  LAVENDER
+  MINT_GREEN
+  LIGHT_PINK
+  LIGHT_BLUE
+  MULTI_COLOR
+  GOLD
+  SILVER
+}
+
+enum TIERS {
+  ONE
+  TWO
+  THREE
+  FOUR
+  FIVE
+}
+
+enum HEIGHT {
+  NORMAL
+  TALL
+  EXTRA_TALL
+}
+
 // Models
 model User {
   id        String   @id @default(uuid()) @db.Uuid
@@ -107,6 +184,27 @@ model CakeFeatures {
   @@map("cake_features")
 }
 
+model CakeDetails {
+  id           String      @id @default(uuid()) @db.Uuid
+  orderId      String      @unique @db.Uuid
+  order        Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  size         String      @db.VarChar(255)
+  text         String      @db.Text
+  flavour      FLAVOUR
+  isEggLess    Boolean     @default(false)
+  isLessCream  Boolean     @default(false)
+  isExtraJuicy Boolean     @default(false)
+  shape        SHAPE
+  icingType    ICING_TYPE
+  icingColor   ICING_COLOR
+  tiers        TIERS
+  height       HEIGHT
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@map("cake_details")
+}
+
 model Category {
   id        String   @id @default(uuid()) @db.Uuid
   name      String   @unique @db.VarChar(255)
@@ -129,6 +227,7 @@ model Order {
   status        STATUS         @default(PENDING)
   paymentMethod PAYMENT_METHOD
   message       String?        @db.Text
+  cakeDetails   CakeDetails?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
