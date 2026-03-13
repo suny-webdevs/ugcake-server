@@ -4,7 +4,11 @@ import text_to_json from "../../middlewares/textToJSON"
 
 const router = Router()
 
-router.post("/", text_to_json(), categoryController.create_category)
+router.post(
+  "/create-category",
+  text_to_json(),
+  categoryController.create_category,
+)
 router.get("/", categoryController.get_all_categories)
 router.get("/:id", categoryController.get_category)
 router.get("/name/:name", categoryController.get_category_by_name)

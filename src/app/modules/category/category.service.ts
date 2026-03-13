@@ -5,7 +5,7 @@ import { Request } from "express"
 
 const create_category = async (req: Request) => {
   const body = req.body
-
+  console.log(req)
   const category = await prisma.category.create({
     data: {
       name: body.name,

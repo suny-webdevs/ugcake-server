@@ -150,7 +150,8 @@ model Cake {
   description  String    @db.Text
   images       String[] // Array of image URLs
   price        Decimal   @db.Decimal(10, 2)
-  category     String    @db.VarChar(255)
+  categoryId   String    @db.Uuid
+  category     Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   type         CAKE_TYPE
   customizable Boolean   @default(false)
   stock        Int       @default(0)
@@ -209,9 +210,10 @@ model Category {
   id        String   @id @default(uuid()) @db.Uuid
   name      String   @unique @db.VarChar(255)
   image     String?  @db.Text
-  cakes     String[] // Array of cake IDs
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  cakes Cake[]
 
   @@map("categories")
 }
