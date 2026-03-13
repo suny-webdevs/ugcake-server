@@ -5,11 +5,14 @@ import { Request } from "express"
 
 const create_category = async (req: Request) => {
   const body = req.body
-  console.log(req)
+  // Check if category with the same name already exists
   const category = await prisma.category.create({
     data: {
       name: body.name,
       image: body.image ?? null,
+    },
+    include: {
+      cakes: true,
     },
   })
 
@@ -17,13 +20,20 @@ const create_category = async (req: Request) => {
 }
 
 const get_all_categories = async () => {
-  const categories = await prisma.category.findMany()
+  const categories = await prisma.category.findMany({
+    include: {
+      cakes: true,
+    },
+  })
   return categories
 }
 
 const get_category = async (req: Request) => {
   const id = req.params.id ?? req.body?.id
-  const category = await prisma.category.findUnique({ where: { id } })
+  const category = await prisma.category.findUnique({
+    where: { id },
+    include: { cakes: true },
+  })
   if (!category) {
     throw new AppError(httpStatus.NOT_FOUND, "Category not found")
   }
@@ -31,7 +41,10 @@ const get_category = async (req: Request) => {
 }
 
 const get_category_by_name = async (name: string) => {
-  const category = await prisma.category.findUnique({ where: { name } })
+  const category = await prisma.category.findUnique({
+    where: { name },
+    include: { cakes: true },
+  })
   return category
 }
 
@@ -41,13 +54,19 @@ const update_category = async (req: Request) => {
   const category = await prisma.category.update({
     where: { id },
     data: payload,
+    include: {
+      cakes: true,
+    },
   })
   return category
 }
 
 const delete_category = async (req: Request) => {
   const id = req.params.id ?? req.body?.id
-  const category = await prisma.category.delete({ where: { id } })
+  const category = await prisma.category.delete({
+    where: { id },
+    include: { cakes: true },
+  })
   return category
 }
 
