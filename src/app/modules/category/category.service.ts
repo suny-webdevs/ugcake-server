@@ -2,14 +2,31 @@ import prisma from "../../lib/prisma"
 import AppError from "../../errors/AppError"
 import httpStatus from "http-status"
 import { Request } from "express"
+import { uploadBufferToCloudinary } from "../../utils/uploadPhoto"
+import { ICloudinaryResponse } from "../../interface/file"
 
 const create_category = async (req: Request) => {
-  const body = req.body
+  const { name } = req.body
+
+  if (!name) {
+    throw new Error("Category name is required")
+  }
+
+  let imageUrl: string | null = null
+
+  if (req.file) {
+    const uploaded = (await uploadBufferToCloudinary(
+      req.file,
+      "categories",
+    )) as ICloudinaryResponse
+    imageUrl = uploaded.secure_url
+  }
+
   // Check if category with the same name already exists
   const category = await prisma.category.create({
     data: {
-      name: body.name,
-      image: body.image ?? null,
+      name: name,
+      image: imageUrl,
     },
     include: {
       cakes: true,

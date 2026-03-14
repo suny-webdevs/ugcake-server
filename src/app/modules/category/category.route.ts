@@ -1,11 +1,13 @@
 import { Router } from "express"
 import { categoryController } from "./category.controller"
 import text_to_json from "../../middlewares/textToJSON"
+import { upload } from "../../middlewares/upload"
 
 const router = Router()
 
 router.post(
   "/create-category",
+  upload.single("file"),
   text_to_json(),
   categoryController.create_category,
 )
