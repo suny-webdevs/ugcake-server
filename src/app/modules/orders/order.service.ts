@@ -64,7 +64,7 @@ const create_order = async (req: Request) => {
 
   // If cake is customizable, create cake details
   if (cake.customizable && customizationDetails) {
-    await prisma.cakeDetails.create({
+    await prisma.cakeOrderDetails.create({
       data: {
         orderId: order.id,
         size: customizationDetails.size,

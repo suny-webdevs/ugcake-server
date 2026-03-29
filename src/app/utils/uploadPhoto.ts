@@ -22,3 +22,13 @@ export const uploadBufferToCloudinary = (
     streamifier.createReadStream(file.buffer).pipe(stream)
   })
 }
+
+export const uploadMultipleBuffersToCloudinary = (
+  files: Express.Multer.File[],
+  subfolder: string = "categories",
+): Promise<(ICloudinaryResponse | undefined)[]> => {
+  const uploadPromises = files.map((file) =>
+    uploadBufferToCloudinary(file, subfolder),
+  )
+  return Promise.all(uploadPromises)
+}

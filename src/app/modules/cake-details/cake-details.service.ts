@@ -29,7 +29,7 @@ const create_cake_details = async (req: Request) => {
   }
 
   // Create cake details
-  const cakeDetails = await prisma.cakeDetails.create({
+  const cakeDetails = await prisma.cakeOrderDetails.create({
     data: {
       orderId,
       size,
@@ -53,7 +53,7 @@ const create_cake_details = async (req: Request) => {
 }
 
 const get_all_cake_details = async () => {
-  const cakeDetails = await prisma.cakeDetails.findMany({
+  const cakeDetails = await prisma.cakeOrderDetails.findMany({
     include: {
       order: true,
     },
@@ -63,7 +63,7 @@ const get_all_cake_details = async () => {
 }
 
 const get_cake_details = async (id: string) => {
-  const cakeDetails = await prisma.cakeDetails.findUnique({
+  const cakeDetails = await prisma.cakeOrderDetails.findUnique({
     where: { id },
     include: {
       order: true,
@@ -78,7 +78,7 @@ const get_cake_details = async (id: string) => {
 }
 
 const get_cake_details_by_order = async (orderId: string) => {
-  const cakeDetails = await prisma.cakeDetails.findUnique({
+  const cakeDetails = await prisma.cakeOrderDetails.findUnique({
     where: { orderId },
     include: {
       order: true,
@@ -96,7 +96,7 @@ const get_cake_details_by_order = async (orderId: string) => {
 }
 
 const update_cake_details = async (id: string, payload: any) => {
-  const cakeDetails = await prisma.cakeDetails.findUnique({
+  const cakeDetails = await prisma.cakeOrderDetails.findUnique({
     where: { id },
   })
 
@@ -104,7 +104,7 @@ const update_cake_details = async (id: string, payload: any) => {
     throw new AppError(httpStatus.NOT_FOUND, "Cake details not found")
   }
 
-  const updatedCakeDetails = await prisma.cakeDetails.update({
+  const updatedCakeDetails = await prisma.cakeOrderDetails.update({
     where: { id },
     data: payload,
     include: {
@@ -116,7 +116,7 @@ const update_cake_details = async (id: string, payload: any) => {
 }
 
 const delete_cake_details = async (id: string) => {
-  const cakeDetails = await prisma.cakeDetails.findUnique({
+  const cakeDetails = await prisma.cakeOrderDetails.findUnique({
     where: { id },
   })
 
@@ -124,7 +124,7 @@ const delete_cake_details = async (id: string) => {
     throw new AppError(httpStatus.NOT_FOUND, "Cake details not found")
   }
 
-  await prisma.cakeDetails.delete({
+  await prisma.cakeOrderDetails.delete({
     where: { id },
   })
 

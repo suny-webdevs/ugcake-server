@@ -171,21 +171,21 @@ model Cake {
 }
 
 model CakeFeatures {
-  id                  String   @id @default(uuid()) @db.Uuid
-  cakeId              String   @unique @db.Uuid
-  cake                Cake     @relation(fields: [cakeId], references: [id], onDelete: Cascade)
-  specificationsLabel String[] // Array of specification labels
-  specificationValue  String[] // Array of specification values
-  features            String[] // Array of features
-  nutritionLabel      String[] // Array of nutrition labels
-  nutritionValue      String[] // Array of nutrition values
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                 String   @id @default(uuid()) @db.Uuid
+  cakeId             String   @unique @db.Uuid
+  cake               Cake     @relation(fields: [cakeId], references: [id], onDelete: Cascade)
+  specificationLabel String[] // Array of specification labels
+  specificationValue String[] // Array of specification values
+  features           String[] // Array of features
+  nutritionLabel     String[] // Array of nutrition labels
+  nutritionValue     String[] // Array of nutrition values
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@map("cake_features")
 }
 
-model CakeDetails {
+model CakeOrderDetails {
   id           String      @id @default(uuid()) @db.Uuid
   orderId      String      @unique @db.Uuid
   order        Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
@@ -203,7 +203,7 @@ model CakeDetails {
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 
-  @@map("cake_details")
+  @@map("cake_order_details")
 }
 
 model Category {
@@ -229,9 +229,10 @@ model Order {
   status        STATUS         @default(PENDING)
   paymentMethod PAYMENT_METHOD
   message       String?        @db.Text
-  cakeDetails   CakeDetails?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
+
+  cakeDetails CakeOrderDetails?
 
   @@index([userId, cakeId])
   @@map("orders")

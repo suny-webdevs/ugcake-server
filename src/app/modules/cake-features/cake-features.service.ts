@@ -9,7 +9,7 @@ const create_cake_features = async (req: Request) => {
   const cakeFeatures = await prisma.cakeFeatures.create({
     data: {
       cakeId: body.cakeId,
-      specificationsLabel: body.specificationsLabel ?? [],
+      specificationLabel: body.specificationsLabel ?? [],
       specificationValue: body.specificationValue ?? [],
       features: body.features ?? [],
       nutritionLabel: body.nutritionLabel ?? [],
