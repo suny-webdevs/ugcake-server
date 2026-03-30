@@ -2,14 +2,14 @@ export interface ICake {
   customizable?: boolean
   title: string
   description: string
-  price: number
+  price: string
   images?: any
   cakeType: "CUPCAKE" | "CAKE"
   flavors: string
   weight: string
   features?: string
   category: string
-  stock: number
+  stock: string
   specificationLabel?: string
   specificationValue?: string
   nutritionLabel?: string

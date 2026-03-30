@@ -3,7 +3,7 @@ import httpStatus from "http-status"
 import { Request } from "express"
 import prisma from "../../lib/prisma"
 import { uploadMultipleBuffersToCloudinary } from "../../utils/uploadPhoto"
-import { Category } from "@prisma/client"
+import { Category, Prisma } from "@prisma/client"
 import { ICake } from "../../interface/cake"
 import { skuGenerator } from "../../utils/skuGenerator"
 
@@ -43,11 +43,11 @@ const create_cake = async (req: Request) => {
         title: body.title,
         description: body.description,
         images: imageUrls,
-        price: body.price,
+        price: new Prisma.Decimal(body.price),
         categoryId: body.category,
         type: body.cakeType.toUpperCase() as any,
         customizable: body.customizable ?? false,
-        stock: body.stock ?? 0,
+        stock: Number(body.stock) ?? 0,
         size: body.weight ?? null,
         flavour: body.flavors ?? null,
         soldAmount: 0,
@@ -116,6 +116,7 @@ const get_cake = async (req: Request) => {
   const cake = await prisma.cake.findUnique({
     where: { id },
     include: {
+      category: true,
       cakeFeatures: true,
     },
   })
@@ -142,7 +143,28 @@ const get_cake_by_slug = async (req: Request) => {
 
 const update_cake = async (req: Request) => {
   const id = req.params.id ?? req.body?.id
-  const { payload } = req.body
+  const body = req.body as ICake
+  const files = (req.files as Express.Multer.File[]) || []
+
+  // Check if category exists
+  const category = (await prisma.category.findUnique({
+    where: { id: body.category },
+  })) as Category
+
+  if (!category) {
+    throw new AppError(httpStatus.NOT_FOUND, `Category not found`)
+  }
+
+  let imageUrls: string[] = Array.isArray(body.images) ? body.images : []
+  if (files.length > 0) {
+    const uploadedImages = await uploadMultipleBuffersToCloudinary(
+      files,
+      "cakes",
+    )
+    imageUrls = uploadedImages
+      .filter((img) => img?.secure_url)
+      .map((img) => img!.secure_url)
+  }
 
   // Get current cake to check if category is being changed
   const currentCake = await prisma.cake.findUnique({
@@ -153,25 +175,23 @@ const update_cake = async (req: Request) => {
     throw new AppError(httpStatus.NOT_FOUND, "Cake not found")
   }
 
-  // If category is being changed, handle the category array updates
-  if (payload.categoryId && payload.categoryId !== currentCake.categoryId) {
-    // Verify new category exists
-    const newCategory = await prisma.category.findUnique({
-      where: { id: payload.categoryId },
-    })
-
-    if (!newCategory) {
-      throw new AppError(
-        httpStatus.NOT_FOUND,
-        `Category "${payload.category}" not found`,
-      )
-    }
-  }
-
   const cake = await prisma.cake.update({
     where: { id },
-    data: payload,
+    data: {
+      slug: `${body.title.toLowerCase().replace(/\s+/g, "-")}`,
+      title: body.title,
+      description: body.description,
+      images: imageUrls,
+      price: new Prisma.Decimal(body.price),
+      categoryId: body.category,
+      type: body.cakeType.toUpperCase() as any,
+      customizable: body.customizable ?? false,
+      stock: Number(body.stock) ?? 0,
+      size: body.weight ?? null,
+      flavour: body.flavors ?? null,
+    },
     include: {
+      category: true,
       cakeFeatures: true,
     },
   })
