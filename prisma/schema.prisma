@@ -146,6 +146,7 @@ model Profile {
 model Cake {
   id           String    @id @default(uuid()) @db.Uuid
   sku          String    @unique @db.VarChar(255)
+  slug         String    @unique @db.VarChar(255)
   title        String    @db.VarChar(255)
   description  String    @db.Text
   images       String[] // Array of image URLs

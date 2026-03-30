@@ -39,6 +39,7 @@ const create_cake = async (req: Request) => {
     const cake = await tx.cake.create({
       data: {
         sku: sku,
+        slug: `${body.title.toLowerCase().replace(/\s+/g, "-")}`,
         title: body.title,
         description: body.description,
         images: imageUrls,
@@ -67,7 +68,9 @@ const create_cake = async (req: Request) => {
     // Helper function to convert string or array to array, skip if empty
     const toArray = (value: any): string[] | undefined => {
       if (Array.isArray(value) && value.length > 0) return value
-      if (typeof value === "string" && value.trim()) return [value]
+      if (typeof value === "string" && value.trim()) {
+        return value.split(/\s*,\s*/).filter(Boolean)
+      }
       return undefined
     }
 
@@ -113,6 +116,21 @@ const get_cake = async (req: Request) => {
   const cake = await prisma.cake.findUnique({
     where: { id },
     include: {
+      cakeFeatures: true,
+    },
+  })
+  if (!cake) {
+    throw new AppError(httpStatus.NOT_FOUND, "Cake not found")
+  }
+  return cake
+}
+
+const get_cake_by_slug = async (req: Request) => {
+  const slug = req.params.slug ?? req.body?.slug
+  const cake = await prisma.cake.findUnique({
+    where: { slug },
+    include: {
+      category: true,
       cakeFeatures: true,
     },
   })
@@ -184,6 +202,7 @@ export const cakeService = {
   create_cake,
   get_all_cake,
   get_cake,
+  get_cake_by_slug,
   update_cake,
   delete_cake,
 }

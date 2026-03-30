@@ -13,6 +13,7 @@ router.post(
 )
 router.get("/", cakeController.getAllCake)
 router.get("/:id", cakeController.getCake)
+router.get("/slug/:slug", cakeController.getCakeBySlug)
 router.patch("/update-cake/:id", cakeController.updateCake)
 router.delete("/delete-cake/:id", cakeController.deleteCake)
 

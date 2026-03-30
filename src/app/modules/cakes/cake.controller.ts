@@ -3,6 +3,7 @@ import catchAsync from "../../utils/catchAsync"
 import sendResponse from "../../utils/sendResponse"
 import { cakeService } from "./cake.service"
 import httpStatus from "http-status"
+import { get } from "http"
 
 const createCake = catchAsync(async (req: Request, res: Response) => {
   const data = await cakeService.create_cake(req)
@@ -16,6 +17,11 @@ const getAllCake = catchAsync(async (req: Request, res: Response) => {
 
 const getCake = catchAsync(async (req: Request, res: Response) => {
   const data = await cakeService.get_cake(req)
+  sendResponse(res, httpStatus.OK, "Cake fetched successfully", data)
+})
+
+const getCakeBySlug = catchAsync(async (req: Request, res: Response) => {
+  const data = await cakeService.get_cake_by_slug(req)
   sendResponse(res, httpStatus.OK, "Cake fetched successfully", data)
 })
 
@@ -33,6 +39,7 @@ export const cakeController = {
   createCake,
   getAllCake,
   getCake,
+  getCakeBySlug,
   updateCake,
   deleteCake,
 }

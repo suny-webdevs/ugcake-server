@@ -7,11 +7,11 @@ export interface ICake {
   cakeType: "CUPCAKE" | "CAKE"
   flavors: string
   weight: string
-  features?: string[]
+  features?: string
   category: string
   stock: number
-  specificationLabel?: string[]
-  specificationValue?: string[]
-  nutritionLabel?: string[]
-  nutritionValue?: string[]
+  specificationLabel?: string
+  specificationValue?: string
+  nutritionLabel?: string
+  nutritionValue?: string
 }
