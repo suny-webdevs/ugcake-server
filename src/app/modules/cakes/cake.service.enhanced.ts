@@ -219,7 +219,7 @@ const create_cake = async (req: Request) => {
     throw new AppError(httpStatus.NOT_FOUND, `Category not found`)
   }
 
-  const sku = skuGenerator(category.name)
+  const sku = skuGenerator(category.name, body.title, await prisma.cake.count())
 
   // Initialize imageUrls - ensure it's always an array
   let imageUrls: string[] = Array.isArray(body.images) ? body.images : []
