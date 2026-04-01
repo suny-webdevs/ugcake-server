@@ -11,7 +11,7 @@ const createCake = catchAsync(async (req: Request, res: Response) => {
 })
 
 const getAllCake = catchAsync(async (req: Request, res: Response) => {
-  const data = await cakeService.get_all_cake()
+  const data = await cakeService.get_all_cake(req)
   sendResponse(res, httpStatus.OK, "Cakes fetched successfully", data)
 })
 

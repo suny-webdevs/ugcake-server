@@ -6,6 +6,7 @@ import { uploadMultipleBuffersToCloudinary } from "../../utils/uploadPhoto"
 import { Category, Prisma } from "@prisma/client"
 import { ICake } from "../../interface/cake"
 import { skuGenerator } from "../../utils/skuGenerator"
+import QueryBuilder from "../../builder/QueryBuilder"
 
 const create_cake = async (req: Request) => {
   const body = req.body as ICake
@@ -101,14 +102,48 @@ const create_cake = async (req: Request) => {
   return res
 }
 
-const get_all_cake = async () => {
+const get_all_cake = async (req: Request) => {
+  const searchableFields = ["title", "sku"]
+
+  // Extract custom filters that need special handling
+  const { minPrice, maxPrice, ...restQuery } = req.query
+
+  // Build the query
+  const queryBuilder = new QueryBuilder(restQuery)
+  const queryArgs = queryBuilder
+    .search(searchableFields)
+    .filter() // This will handle categoryId, type, customizable, isBestSeller, etc.
+    .sort("createdAt") // Default sort by createdAt
+    .paginate()
+    .fields() // Optional field selection
+    .build()
+
+  // Build price filter if provided
+  const priceFilter: any = {}
+  if (minPrice) priceFilter.gte = new Prisma.Decimal(minPrice as string)
+  if (maxPrice) priceFilter.lte = new Prisma.Decimal(maxPrice as string)
+
+  // Execute the query
   const cakes = await prisma.cake.findMany({
+    ...queryArgs,
+    where: {
+      ...queryArgs.where,
+      isDeleted: false, // Always exclude deleted cakes
+      ...(Object.keys(priceFilter).length > 0 && { price: priceFilter }),
+    },
     include: {
       category: true,
       cakeFeatures: true,
     },
   })
-  return cakes
+
+  // Get pagination metadata
+  const meta = await queryBuilder.countTotal(prisma.cake as any)
+
+  return {
+    data: cakes,
+    meta,
+  }
 }
 
 const get_cake = async (req: Request) => {
