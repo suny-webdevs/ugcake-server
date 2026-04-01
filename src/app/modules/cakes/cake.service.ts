@@ -182,6 +182,15 @@ const update_cake = async (req: Request) => {
   const body = req.body as ICake
   const files = (req.files as Express.Multer.File[]) || []
 
+  // Check if cake exists
+  const existingCake = await prisma.cake.findUnique({
+    where: { id },
+  })
+
+  if (!existingCake) {
+    throw new AppError(httpStatus.NOT_FOUND, "Cake not found")
+  }
+
   // Check if category exists
   const category = (await prisma.category.findUnique({
     where: { id: body.category },
@@ -202,36 +211,72 @@ const update_cake = async (req: Request) => {
       .map((img) => img!.secure_url)
   }
 
-  // Get current cake to check if category is being changed
-  const currentCake = await prisma.cake.findUnique({
-    where: { id },
+  const res = await prisma.$transaction(async (tx) => {
+    // Update the cake
+    const cake = await tx.cake.update({
+      where: { id },
+      data: {
+        slug: `${body.title.toLowerCase().replace(/\s+/g, "-")}`,
+        title: body.title,
+        description: body.description,
+        images: imageUrls,
+        price: new Prisma.Decimal(body.price),
+        categoryId: body.category,
+        type: body.cakeType.toUpperCase() as any,
+        customizable: body.customizable ?? false,
+        stock: Number(body.stock) ?? 0,
+        size: body.weight ?? null,
+        flavour: body.flavors ?? null,
+      },
+      include: {
+        category: true,
+        cakeFeatures: true,
+      },
+    })
+
+    // Helper function to convert string or array to array, skip if empty
+    const toArray = (value: any): string[] | undefined => {
+      if (Array.isArray(value) && value.length > 0) return value
+      if (typeof value === "string" && value.trim()) {
+        return value.split(/\s*,\s*/).filter(Boolean)
+      }
+      return undefined
+    }
+
+    // Build CakeFeatures data, only including defined fields
+    const cakeFeaturesData: any = {}
+
+    const specLabel = toArray(body.specificationLabel)
+    if (specLabel) cakeFeaturesData.specificationLabel = specLabel
+
+    const specValue = toArray(body.specificationValue)
+    if (specValue) cakeFeaturesData.specificationValue = specValue
+
+    const features = toArray(body.features)
+    if (features) cakeFeaturesData.features = features
+
+    const nutritionLabel = toArray(body.nutritionLabel)
+    if (nutritionLabel) cakeFeaturesData.nutritionLabel = nutritionLabel
+
+    const nutritionValue = toArray(body.nutritionValue)
+    if (nutritionValue) cakeFeaturesData.nutritionValue = nutritionValue
+
+    // Update or create cake features
+    if (Object.keys(cakeFeaturesData).length > 0) {
+      await tx.cakeFeatures.upsert({
+        where: { cakeId: id },
+        update: cakeFeaturesData,
+        create: {
+          cakeId: id,
+          ...cakeFeaturesData,
+        },
+      })
+    }
+
+    return cake
   })
 
-  if (!currentCake) {
-    throw new AppError(httpStatus.NOT_FOUND, "Cake not found")
-  }
-
-  const cake = await prisma.cake.update({
-    where: { id },
-    data: {
-      slug: `${body.title.toLowerCase().replace(/\s+/g, "-")}`,
-      title: body.title,
-      description: body.description,
-      images: imageUrls,
-      price: new Prisma.Decimal(body.price),
-      categoryId: body.category,
-      type: body.cakeType.toUpperCase() as any,
-      customizable: body.customizable ?? false,
-      stock: Number(body.stock) ?? 0,
-      size: body.weight ?? null,
-      flavour: body.flavors ?? null,
-    },
-    include: {
-      category: true,
-      cakeFeatures: true,
-    },
-  })
-  return cake
+  return res
 }
 
 const delete_cake = async (req: Request) => {
@@ -252,6 +297,117 @@ const delete_cake = async (req: Request) => {
     data: { isDeleted: true },
   })
   return deletedCake
+}
+
+const get_best_sellers = async (req: Request) => {
+  const queryBuilder = new QueryBuilder(req.query)
+  const queryArgs = queryBuilder
+    .filter() // Allow filtering by categoryId, type, etc.
+    .sort("-soldAmount") // Sort by most sold
+    .paginate()
+    .build()
+
+  const cakes = await prisma.cake.findMany({
+    ...queryArgs,
+    where: {
+      ...queryArgs.where,
+      isDeleted: false,
+      isBestSeller: true,
+    },
+    include: {
+      category: true,
+      cakeFeatures: true,
+    },
+  })
+
+  return cakes
+}
+
+/**
+ * Enhanced: Get cakes by category with pagination
+ *
+ * Example API calls:
+ * GET /api/cakes/category/xxx?sort=-price&page=1&limit=12
+ */
+const get_cakes_by_category = async (req: Request) => {
+  const categoryId = req.params.id as string
+
+  const searchableFields = ["title", "description"]
+  const queryBuilder = new QueryBuilder(req.query)
+  const queryArgs = queryBuilder
+    .search(searchableFields)
+    .sort("-createdAt")
+    .paginate()
+    .build()
+
+  const cakes = await prisma.cake.findMany({
+    ...queryArgs,
+    where: {
+      ...queryArgs.where,
+      categoryId,
+      isDeleted: false,
+    },
+    include: {
+      category: true,
+      cakeFeatures: true,
+    },
+  })
+
+  const meta = await queryBuilder.countTotal(prisma.cake as any)
+
+  return {
+    data: cakes,
+    meta,
+  }
+}
+
+/**
+ * Enhanced: Search cakes with advanced filters
+ *
+ * Example API calls:
+ * GET /api/cakes/search?searchTerm=birthday&type=CAKE&customizable=true&minPrice=200&maxPrice=1000&sort=-soldAmount
+ */
+const search_cakes = async (req: Request) => {
+  const searchableFields = ["title", "description", "sku"]
+  const { minPrice, maxPrice, ...restQuery } = req.query
+
+  const queryBuilder = new QueryBuilder(restQuery)
+  const queryArgs = queryBuilder
+    .search(searchableFields)
+    .filter()
+    .sort("-soldAmount")
+    .paginate()
+    .build()
+
+  // Build price filter
+  const priceFilter: any = {}
+  if (minPrice) priceFilter.gte = new Prisma.Decimal(minPrice as string)
+  if (maxPrice) priceFilter.lte = new Prisma.Decimal(maxPrice as string)
+
+  const cakes = await prisma.cake.findMany({
+    ...queryArgs,
+    where: {
+      ...queryArgs.where,
+      isDeleted: false,
+      ...(Object.keys(priceFilter).length > 0 && { price: priceFilter }),
+    },
+    include: {
+      category: true,
+      cakeFeatures: true,
+      _count: {
+        select: {
+          ratings: true,
+        },
+      },
+    },
+  })
+
+  const meta = await queryBuilder.countTotal(prisma.cake as any)
+
+  return {
+    data: cakes,
+    meta,
+  }
 }
 
 export const cakeService = {
