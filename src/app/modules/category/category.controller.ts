@@ -19,9 +19,9 @@ const get_category = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, httpStatus.OK, "Category fetched successfully", result)
 })
 
-const get_category_by_name = catchAsync(async (req: Request, res: Response) => {
-  const { name } = req.params
-  const result = await categoryService.get_category_by_name(name as string)
+const get_category_by_slug = catchAsync(async (req: Request, res: Response) => {
+  const { slug } = req.params
+  const result = await categoryService.get_category_by_slug(req)
   sendResponse(res, httpStatus.OK, "Category fetched successfully", result)
 })
 
@@ -39,7 +39,7 @@ export const categoryController = {
   create_category,
   get_all_categories,
   get_category,
-  get_category_by_name,
+  get_category_by_slug,
   update_category,
   delete_category,
 }

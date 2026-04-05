@@ -13,7 +13,7 @@ router.post(
 )
 router.get("/", categoryController.get_all_categories)
 router.get("/:id", categoryController.get_category)
-router.get("/name/:name", categoryController.get_category_by_name)
+router.get("/category/:slug", categoryController.get_category_by_slug)
 router.patch("/:id", text_to_json(), categoryController.update_category)
 router.delete("/:id", categoryController.delete_category)
 
