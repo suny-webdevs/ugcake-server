@@ -104,7 +104,7 @@ const create_cake = async (req: Request) => {
 }
 
 const get_all_cake = async (req: Request) => {
-  const searchableFields = ["title", "sku"]
+  const searchableFields = ["title", "sku", "description"]
 
   // Extract custom filters that need special handling
   const { minPrice, maxPrice, ...restQuery } = req.query
@@ -135,6 +135,8 @@ const get_all_cake = async (req: Request) => {
     include: {
       category: true,
       cakeFeatures: true,
+      orders: true,
+      ratings: true,
     },
   })
 
@@ -154,6 +156,8 @@ const get_cake = async (req: Request) => {
     include: {
       category: true,
       cakeFeatures: true,
+      orders: true,
+      ratings: true,
     },
   })
   if (!cake) {
@@ -169,6 +173,8 @@ const get_cake_by_slug = async (req: Request) => {
     include: {
       category: true,
       cakeFeatures: true,
+      orders: true,
+      ratings: true,
     },
   })
   if (!cake) {
