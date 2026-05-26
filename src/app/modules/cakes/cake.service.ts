@@ -150,7 +150,7 @@ const get_all_cake = async (req: Request) => {
 }
 
 const get_cake = async (req: Request) => {
-  const id = req.params.id ?? req.body?.id
+  const id = req.params.id as string
   const cake = await prisma.cake.findUnique({
     where: { id },
     include: {
@@ -167,7 +167,7 @@ const get_cake = async (req: Request) => {
 }
 
 const get_cake_by_slug = async (req: Request) => {
-  const slug = req.params.slug ?? req.body?.slug
+  const slug = req.params.slug as string
   const cake = await prisma.cake.findUnique({
     where: { slug },
     include: {
@@ -184,7 +184,7 @@ const get_cake_by_slug = async (req: Request) => {
 }
 
 const update_cake = async (req: Request) => {
-  const id = req.params.id ?? req.body?.id
+  const id = req.params.id as string
   const body = req.body as ICake
   const files = (req.files as Express.Multer.File[]) || []
 
@@ -286,7 +286,7 @@ const update_cake = async (req: Request) => {
 }
 
 const delete_cake = async (req: Request) => {
-  const id = req.params.id ?? req.body?.id
+  const id = req.params.id as string
 
   // Get cake to find its category
   const cake = await prisma.cake.findUnique({
